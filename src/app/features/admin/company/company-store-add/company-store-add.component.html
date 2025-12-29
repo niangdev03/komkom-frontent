@@ -1,0 +1,88 @@
+<form [formGroup]="form" (ngSubmit)="save()">
+  <div class="flex items-center" mat-dialog-title>
+      <img
+        [src]="'https://images.seeklogo.com/logo-png/40/1/islamic-logo-png_seeklogo-400899.png'"
+        class="avatar ltr:mr-5 rtl:ml-5" />
+    <h2 class="headline m-0 flex-auto">
+      {{ title }}
+    </h2>
+    <button mat-dialog-close mat-icon-button type="button">
+      <mat-icon svgIcon="mat:close"></mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <mat-dialog-content class="flex flex-col space-y-4 p-2 sm:p-4">
+
+    <!-- Nom -->
+    <mat-form-field class="w-full">
+      <mat-label>Nom du magasin</mat-label>
+      <input formControlName="name" matInput />
+      <mat-icon matIconPrefix svgIcon="mat:store"></mat-icon>
+      <mat-error *ngIf="form.get('name')?.hasError('required')">Le nom est obligatoire</mat-error>
+      <mat-error *ngIf="form.get('name')?.hasError('maxlength')">255 caractères maximum</mat-error>
+    </mat-form-field>
+
+    <!-- Adresse -->
+    <mat-form-field class="w-full">
+      <mat-label>Adresse</mat-label>
+      <input formControlName="address" matInput />
+      <mat-icon matIconPrefix svgIcon="mat:location_city"></mat-icon>
+      <mat-error *ngIf="form.get('address')?.hasError('required')">L'adresse est obligatoire</mat-error>
+      <mat-error *ngIf="form.get('address')?.hasError('maxlength')">255 caractères maximum</mat-error>
+    </mat-form-field>
+
+    <!-- Email -->
+    <mat-form-field class="w-full">
+      <mat-label>Email</mat-label>
+      <input formControlName="email" matInput />
+      <mat-icon matIconPrefix svgIcon="mat:mail"></mat-icon>
+      <mat-error *ngIf="form.get('email')?.hasError('required')">L'email est obligatoire</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">Format d'email invalide</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('maxlength')">255 caractères maximum</mat-error>
+    </mat-form-field>
+
+    <!-- Téléphones -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field class="w-full">
+        <mat-label>Téléphone 1</mat-label>
+        <input formControlName="phone_one" matInput />
+        <mat-icon matIconPrefix svgIcon="mat:phone"></mat-icon>
+        <mat-error *ngIf="form.get('phone_one')?.hasError('required')">Téléphone 1 est obligatoire</mat-error>
+        <mat-error *ngIf="form.get('phone_one')?.hasError('pattern')">Numéro invalide</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-full">
+        <mat-label>Téléphone 2</mat-label>
+        <input formControlName="phone_two" matInput />
+        <mat-icon matIconPrefix svgIcon="mat:phone"></mat-icon>
+        <mat-error *ngIf="form.get('phone_two')?.hasError('pattern')">Numéro invalide</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field class="w-full">
+        <mat-label>Téléphone 3</mat-label>
+        <input formControlName="phone_three" matInput />
+        <mat-icon matIconPrefix svgIcon="mat:phone"></mat-icon>
+        <mat-error *ngIf="form.get('phone_three')?.hasError('pattern')">Numéro invalide</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-divider></mat-divider>
+
+  <mat-dialog-actions align="end" class="mt-2">
+    <button mat-raised-button color="warn" type="button" (click)="close()">
+      <mat-icon svgIcon="mat:cancel"></mat-icon>
+      <span>Annuler</span>
+    </button>
+
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting">
+      <mat-icon *ngIf="!isSubmitting" [svgIcon]="isUpdateMode ? 'mat:edit' : 'mat:save'"></mat-icon>
+      <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+      <span>{{ isUpdateMode ? 'Modifier' : 'Enregistrer' }}</span>
+    </button>
+  </mat-dialog-actions>
+</form>

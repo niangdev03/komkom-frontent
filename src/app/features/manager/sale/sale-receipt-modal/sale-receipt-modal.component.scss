@@ -1,0 +1,317 @@
+.receipt-modal {
+  max-width: 100%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.receipt-content {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+// Reçu 58mm - Style papier thermique
+.receipt-paper {
+  width: 58mm;
+  max-width: 100%;
+  background: white;
+  padding: 8mm 4mm;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 640px) {
+    width: 100%;
+    max-width: 58mm;
+  }
+}
+
+// En-tête
+.receipt-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.company-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+}
+
+.company-info {
+  font-size: 9px;
+  margin: 2px 0;
+  line-height: 1.3;
+}
+
+// Type de document
+.receipt-type {
+  text-align: center;
+  margin: 10px 0;
+
+  h2 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 0 4px 0;
+  }
+
+  .receipt-number {
+    font-size: 10px;
+    font-weight: bold;
+    margin: 2px 0;
+  }
+
+  .receipt-date {
+    font-size: 9px;
+    margin: 2px 0;
+  }
+}
+
+// Séparateurs
+.divider {
+  border-top: 1px dashed #999;
+  margin: 8px 0;
+}
+
+.divider-thick {
+  border-top: 2px solid #000;
+  margin: 8px 0;
+}
+
+// Sections
+.receipt-section {
+  margin: 10px 0;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+}
+
+// Client
+.client-name {
+  font-size: 11px;
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.client-info {
+  font-size: 9px;
+  margin: 2px 0;
+}
+
+// Produits
+.product-row {
+  margin: 6px 0;
+  padding: 4px 0;
+  border-bottom: 1px dotted #ccc;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.product-line {
+  margin-bottom: 2px;
+}
+
+.product-name {
+  font-size: 10px;
+  font-weight: bold;
+  display: block;
+}
+
+.product-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+}
+
+.product-qty {
+  color: #666;
+}
+
+.product-subtotal {
+  font-weight: bold;
+}
+
+// Numéros de série
+.serial-numbers {
+  margin-top: 3px;
+  padding: 3px 4px;
+  background: #f8f9fa;
+  border-radius: 2px;
+  font-size: 8px;
+}
+
+.serial-label {
+  font-weight: bold;
+  color: #495057;
+  margin-right: 4px;
+}
+
+.serial-list {
+  display: inline;
+  color: #666;
+}
+
+.serial-item {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+// Montants
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  padding: 4px 2px;
+  font-size: 11px;
+
+  &.highlight {
+    background: #f0f0f0;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  &.warning {
+    background: #fff3cd;
+    color: #856404;
+    font-weight: bold;
+  }
+
+  &.success {
+    background: #d4edda;
+    color: #155724;
+    font-weight: bold;
+  }
+}
+
+.amount-label {
+  flex: 1;
+}
+
+.amount-value {
+  font-weight: bold;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Statut
+.status-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  padding: 6px;
+  background: #f8f9fa;
+}
+
+.status-label {
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
+
+  &.status-paid {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.status-partial {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  &.status-unpaid {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  &.status-cancelled {
+    background: #d6d8db;
+    color: #383d41;
+  }
+}
+
+// Pied de page
+.receipt-footer {
+  text-align: center;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed #999;
+}
+
+.footer-text {
+  font-size: 10px;
+  margin: 3px 0;
+}
+
+.footer-barcode {
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+// Print styles
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .receipt-content {
+    background: white;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .receipt-paper {
+    box-shadow: none;
+    width: 58mm;
+    margin: 0 auto;
+  }
+
+  @page {
+    size: 58mm auto;
+    margin: 0;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+
+// Responsive pour mobile
+@media (max-width: 640px) {
+  .modal-header {
+    padding: 12px;
+  }
+
+  .receipt-content {
+    padding: 12px;
+  }
+}

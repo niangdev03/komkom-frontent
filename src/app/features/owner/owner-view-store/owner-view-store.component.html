@@ -1,0 +1,85 @@
+<div class="h-full flex flex-col">
+  <div class="p-3 sm:p-4 lg:p-6 pb-0 bg-foreground shadow-b flex-none border-b">
+    <div class="container px-0">
+      <h1 class="display-1 font-bold mt-0 mb-3 sm:mb-4 flex items-center">
+        <span
+          @scaleIn
+          class="w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full text-primary-600 ltr:mr-2 sm:ltr:mr-3 lg:ltr:mr-4 rtl:ml-2 sm:rtl:ml-3 lg:rtl:ml-4 flex items-center justify-center bg-primary-600/10">
+          <mat-icon svgIcon="mat:business" class="text-xl sm:text-2xl"></mat-icon>
+        </span>
+        <span @fadeInRight class="block text-lg sm:text-xl lg:text-2xl">Gérer votre boutique</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="flex-1 p-3 sm:p-4">
+    <div class="card mb-3 sm:mb-4 shadow-md rounded-lg bg-white overflow-hidden">
+      <div class="p-3 sm:p-4 md:p-6">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
+          <!-- Company Logo -->
+          <div
+            class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+            <img *ngIf="company?.logo_url" [src]="company?.logo_url"
+              [alt]="company?.name" class="w-full h-full object-cover">
+            <div *ngIf="!company?.logo_url"
+              class="w-full h-full bg-primary-600/10 flex items-center justify-center text-primary-600">
+              <mat-icon svgIcon="mat:business" class="text-2xl sm:text-3xl md:text-4xl"></mat-icon>
+            </div>
+          </div>
+
+          <!-- Content Section -->
+          <div class="flex-1 min-w-0">
+            <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">{{store?.name}}</h1>
+
+            <!-- Address -->
+            <div class="flex items-start gap-2 sm:gap-3">
+              <div
+                class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary-600/10 text-primary-600 flex items-center justify-center flex-shrink-0">
+                <mat-icon class="icon-xs" svgIcon="mat:location_on" style="width: 18px; height: 18px; font-size: 18px;"></mat-icon>
+              </div>
+              <p class="text-xs sm:text-sm md:text-base font-medium text-gray-800 break-words">{{store?.address}}</p>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <div class="flex md:flex-col justify-end md:justify-start">
+            <button mat-raised-button color="primary" type="button" (click)="goBack()" class="text-sm sm:text-base">
+              <mat-icon svgIcon="mat:list" style="width: 20px; height: 20px; font-size: 20px;"></mat-icon>
+              <span class="ml-1 sm:ml-2">Retour</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section des boutons de navigation Manager -->
+    <div class="card mb-3 sm:mb-4 shadow-md rounded-lg bg-white overflow-hidden">
+      <div class="p-3 sm:p-4 md:p-6">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Outils de Gestion Manager</h2>
+
+        <div *ngIf="managerNavigationLinks.length > 0" class="mt-4 sm:mt-6">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">Tous les menus</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+            <button
+              *ngFor="let link of managerNavigationLinks"
+              class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-primary-50 rounded-lg transition-all duration-200 border border-gray-200 hover:border-primary-300 hover:shadow-md"
+              (click)="navigateTo(link.route)"
+              matTooltip="{{link.label}}"
+              [matTooltipShowDelay]="500">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary-100 text-primary-600 mr-2 sm:mr-3 flex items-center justify-center flex-shrink-0">
+                <mat-icon [svgIcon]="link.icon || 'mat:link'" style="width: 20px; height: 20px; font-size: 20px;"></mat-icon>
+              </div>
+              <span class="text-xs sm:text-sm font-medium text-gray-700 flex-1 text-left">{{link.label}}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Message si pas de liens -->
+        <div *ngIf="managerNavigationLinks.length === 0" class="text-center py-6 sm:py-8">
+          <mat-icon class="text-gray-400 mb-2" svgIcon="mat:warning" style="width: 40px; height: 40px; font-size: 40px;"></mat-icon>
+          <p class="text-gray-500 text-sm sm:text-base">Aucun outil de gestion disponible</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

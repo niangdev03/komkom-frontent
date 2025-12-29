@@ -1,0 +1,194 @@
+<div class="w-full h-full flex flex-col">
+  <div class="px-4 sm:px-6 pt-4 sm:pt-6 pb-6 sm:pb-10 bg-primary-600/10 flex-none">
+    <div class="flex flex-col sm:flex-row items-center container px-0">
+      <button @scaleIn class="sm:hidden text-primary-600 mb-4 sm:mb-0 focus:outline-none" mat-icon-button type="button">
+        <mat-icon svgIcon="mat:menu"></mat-icon>
+      </button>
+      <h2 class="display-1 font-bold m-0 flex items-center w-full max-w-4xs mr-0 sm:mr-6 mb-4">
+        <span @scaleIn
+          class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-primary-600 ltr:mr-3 sm:ltr:mr-4 rtl:ml-3 sm:rtl:ml-4 bg-primary-600/10 flex items-center justify-center">
+          <mat-icon svgIcon="mat:domain"></mat-icon>
+        </span>
+        <span @fadeInRight class="block">Gestion des entreprises</span>
+      </h2>
+
+      <div
+        class="flex items-center bg-white dark:bg-gray-800 rounded-full overflow-hidden relative ltr:pl-4 sm:ltr:pl-5 rtl:pr-4 sm:rtl:pr-5 h-10 sm:h-12 max-w-md w-full shadow-xl mx-auto">
+        <mat-icon class="text-secondary flex-none" svgIcon="mat:search"></mat-icon>
+        <input [formControl]="searchCtrl"
+          class="border-0 h-10 sm:h-12 outline-none ltr:pl-3 sm:ltr:pl-4 rtl:pr-3 sm:rtl:pr-4 placeholder:text-secondary bg-transparent flex-auto text-sm sm:text-base w-full"
+          placeholder="Rechercher Ici..." type="text" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal avec filtres et cartes de produits -->
+  <div class="w-full h-full flex flex-col -mt-4 sm:-mt-6">
+    <vex-page-layout-content [class.container]="layoutCtrl.value === 'fullwidth'"
+      [class.px-4]="layoutCtrl.value === 'boxed'" [class.sm:px-6]="layoutCtrl.value === 'boxed'">
+
+      <!-- En-tête avec filtres - Responsive optimisé -->
+      <div class="card p-3 sm:p-4 md:p-6 mb-3 sm:mb-4 md:mb-6 shadow-sm hover:shadow transition-shadow duration-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+          <!-- Compteur de produits -->
+          <div class="flex flex-wrap items-center mb-3 sm:mb-0 w-full sm:w-auto">
+            <h2 class="text-base sm:text-lg md:text-xl font-bold m-0 mr-2 sm:mr-3">Liste des entreprises</h2>
+            <div class="flex items-center bg-primary-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">
+              <span class="font-bold">Nombre:</span>
+              <span class="ml-1 sm:ml-2 text-base sm:text-lg font-bold">{{ nb_companies }}</span>
+            </div>
+          </div>
+
+          <!-- Filtres et bouton d'ajout -->
+          <div class="flex flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center gap-2 sm:gap-3">
+            <!-- Filtre par catégorie -->
+            <!-- <mat-form-field subscriptSizing="dynamic" class="w-full sm:w-48 mb-2 sm:mb-0" appearance="outline">
+              <mat-label>Filtrer par catégorie</mat-label>
+              <mat-select [(ngModel)]="selectedCategory" (selectionChange)="filterByCategory()">
+                <mat-option [value]="''">Toutes</mat-option>
+                <mat-option *ngFor="let item of categories" [value]="item.name">{{item.name}}</mat-option>
+              </mat-select>
+            </mat-form-field> -->
+
+            <!-- Bouton d'ajout -->
+            <div class="flex items-center justify-center sm:justify-end w-full sm:w-auto">
+              <button (click)="add()" color="primary" mat-raised-button matTooltip="Ajouter Produit" type="button"
+                class="w-full sm:w-auto flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200">
+                <mat-icon svgIcon="mat:add" class="mr-1"></mat-icon>
+                <span>Nouvelle entreprise</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="companies.length > 0"
+        class="grid grid-cols-1 border-primary-500 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+        <div *ngFor="let company of companies"
+          class="card group hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden">
+
+          <!-- En-tête avec logo -->
+          <div
+            class="relative bg-gradient-to-br from-primary-500/10 to-primary-600/5 p-6 flex items-center justify-center h-32 sm:h-40">
+
+            <!-- Bouton menu en haut à droite -->
+            <button mat-icon-button [matMenuTriggerFor]="actionsMenu" [matMenuTriggerData]="{customer: company}"
+              (click)="$event.stopPropagation()" matTooltip="Plus d'actions"
+              class="absolute top-2 right-2 z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 shadow-sm">
+              <mat-icon svgIcon="mat:more_vert"></mat-icon>
+            </button>
+
+            <!-- Logo centré -->
+            <div
+              class="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
+
+              <img *ngIf="company.logo_url" [src]="company.logo_url" [alt]="company.name"
+                class="w-full h-full object-cover" />
+              <div *ngIf="!company.logo_url"
+                class="w-full h-full flex items-center justify-center bg-primary-100 text-primary-600 text-2xl sm:text-3xl font-bold">
+                {{ company.short_name }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenu de la carte -->
+          <div class="p-4">
+            <!-- Nom de l'entreprise -->
+            <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1 truncate"
+              [matTooltip]="company.name">
+              {{ company.name }}
+            </h3>
+
+            <!-- Slogan -->
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-3 truncate" [matTooltip]="company.slogan">
+              {{ company.slogan }}
+            </p>
+
+            <!-- Informations de contact -->
+            <div class="space-y-2 mb-4">
+              <!-- Email -->
+              <div class="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                <mat-icon svgIcon="mat:email" class="text-primary-500 mr-2 scale-75 sm:scale-100"></mat-icon>
+                <span class="truncate" [matTooltip]="company.email">{{ company.email }}</span>
+              </div>
+
+              <!-- Téléphone -->
+              <div class="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                <mat-icon svgIcon="mat:phone" class="text-primary-500 mr-2 scale-75 sm:scale-100"></mat-icon>
+                <span>{{ company.phone_one }}</span>
+              </div>
+
+              <!-- Adresse -->
+              <div class="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                <mat-icon svgIcon="mat:location_on" class="text-primary-500 mr-2 scale-75 sm:scale-100"></mat-icon>
+                <span class="truncate" [matTooltip]="company.head_office_address">{{ company.head_office_address
+                  }}</span>
+              </div>
+            </div>
+
+            <!-- Propriétaire -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Propriétaire</p>
+              <div class="flex items-center">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 text-xs font-semibold mr-2">
+                  {{ company.owner.user.first_name.charAt(0) }}{{ company.owner.user.last_name.charAt(0) }}
+                </div>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                  {{ company.owner.user.full_name }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="companies.length === 0"
+        class="card flex-auto flex flex-col items-center justify-center py-10 sm:py-16 shadow-sm">
+        <img class="m-6 h-32 sm:h-48 opacity-80" src="assets/img/illustrations/idea.svg" />
+        <h2 class="text-xl sm:text-2xl mt-4 mb-6 text-center px-6 font-medium">
+          <span>Aucune entreprise ne correspond à vos filtres</span>
+        </h2>
+        <button mat-raised-button color="primary" (click)="resetFilters()"
+          class="shadow-md hover:shadow-lg transition-shadow duration-200">
+          Réinitialiser les filtres
+        </button>
+      </div>
+
+      <!-- Pagination améliorée -->
+      <mat-paginator
+
+        *ngIf="companies.length > 0"
+        [pageSizeOptions]="meta.pageSizeOptions"
+        [pageSize]="meta.per_page"
+        [pageIndex]="meta.current_page - 1"
+        [length]="meta.total"
+        (page)="pageEvent($event)"
+        class="sticky left-0 mt-4">
+      </mat-paginator>
+    </vex-page-layout-content>
+  </div>
+</div>
+
+<mat-menu #actionsMenu="matMenu" xPosition="before" yPosition="below">
+  <ng-template let-customer="customer" matMenuContent>
+    <button mat-menu-item (click)="goToStore(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:remove_red_eye" color="primary" class="mr-2"></mat-icon>
+      <span>Voir les boutiques</span>
+    </button>
+    <button mat-menu-item (click)="disable(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:block" color="primary" class="mr-2"></mat-icon>
+      <span>Désactiver</span>
+    </button>
+    <button mat-menu-item (click)="update(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:edit" color="primary" class="mr-2"></mat-icon>
+      <span>Modifier</span>
+    </button>
+    <button mat-menu-item (click)="delete(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:delete" color="warn" class="mr-2"></mat-icon>
+      <span>Supprimer</span>
+    </button>
+  </ng-template>
+</mat-menu>

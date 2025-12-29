@@ -1,0 +1,206 @@
+<div class="w-full h-full flex flex-col">
+  <div class="px-4 sm:px-6 pt-4 sm:pt-6 pb-6 sm:pb-10 bg-primary-600/10 flex-none">
+    <div class="flex flex-col sm:flex-row items-center container px-0">
+      <button @scaleIn class="sm:hidden text-primary-600 mb-4 sm:mb-0 focus:outline-none" mat-icon-button type="button">
+        <mat-icon svgIcon="mat:menu"></mat-icon>
+      </button>
+      <h2 class="display-1 font-bold m-0 flex items-center w-full max-w-4xs mr-0 sm:mr-6 mb-4">
+        <span @scaleIn
+          class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-primary-600 ltr:mr-3 sm:ltr:mr-4 rtl:ml-3 sm:rtl:ml-4 bg-primary-600/10 flex items-center justify-center">
+          <mat-icon svgIcon="mat:domain"></mat-icon>
+        </span>
+        <span @fadeInRight class="block">Gestion des boutiques</span>
+      </h2>
+
+      <div
+        class="flex items-center bg-white dark:bg-gray-800 rounded-full overflow-hidden relative ltr:pl-4 sm:ltr:pl-5 rtl:pr-4 sm:rtl:pr-5 h-10 sm:h-12 max-w-md w-full shadow-xl mx-auto">
+        <mat-icon class="text-secondary flex-none" svgIcon="mat:search"></mat-icon>
+        <input [formControl]="searchCtrl"
+          class="border-0 h-10 sm:h-12 outline-none ltr:pl-3 sm:ltr:pl-4 rtl:pr-3 sm:rtl:pr-4 placeholder:text-secondary bg-transparent flex-auto text-sm sm:text-base w-full"
+          placeholder="Rechercher Ici..." type="text" />
+      </div>
+      <button (click)="goBack()" color="primary" mat-raised-button type="button"
+                class="m-4">
+                <mat-icon svgIcon="mat:arrow_back" class="mr-1"></mat-icon>
+                <span>Retour</span>
+              </button>
+    </div>
+  </div>
+
+  <!-- Contenu principal avec filtres et cartes de produits -->
+  <div class="w-full h-full flex flex-col -mt-4 sm:-mt-6">
+    <vex-page-layout-content [class.container]="layoutCtrl.value === 'fullwidth'"
+      [class.px-4]="layoutCtrl.value === 'boxed'" [class.sm:px-6]="layoutCtrl.value === 'boxed'">
+
+    <!-- Card Informations de la Company -->
+<div class="card p-3 sm:p-4 mb-3 sm:mb-4 shadow-md hover:shadow-lg transition-shadow duration-200">
+  <div class="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4">
+
+    <!-- Logo ou Initiales de la Company -->
+    <div class="flex-shrink-0">
+      <div *ngIf="company.logo_url; else companyInitials"
+        class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-primary-500 shadow-md">
+        <img [src]="company.logo_url" [alt]="company.name" class="w-full h-full object-cover" />
+      </div>
+      <ng-template #companyInitials>
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary-500 flex items-center justify-center text-white text-xl sm:text-2xl font-bold shadow-md">
+          {{ company.short_name || getInitials(company.name) }}
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Informations de la Company -->
+    <div class="flex-1 w-full flex flex-col sm:flex-row items-center sm:items-center justify-between gap-2">
+      <div class="flex-1 flex flex-col items-center sm:items-start justify-center">
+        <!-- Nom de la company -->
+        <h2 class="text-lg sm:text-xl font-bold mb-1 text-center sm:text-left text-gray-800 dark:text-gray-100">
+          {{ company.name }}
+        </h2>
+
+        <!-- Adresse -->
+        <div class="flex items-center justify-center sm:justify-start" *ngIf="company.head_office_address">
+          <mat-icon class="icon-sm text-primary-600 mr-1" svgIcon="mat:location_on"></mat-icon>
+          <p class="m-0 text-sm text-gray-600 dark:text-gray-400">Siège - {{ company.head_office_address }}</p>
+        </div>
+      </div>
+
+      <!-- Bouton aligné à droite et centré verticalement -->
+      <div class="flex items-center justify-center sm:justify-end">
+        <button (click)="createStore()" color="primary" mat-raised-button matTooltip="Ajouter Boutique" type="button"
+          class="flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200">
+          <mat-icon svgIcon="mat:add" class="mr-1"></mat-icon>
+          <span>Nouvelle boutique</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Grille de cartes de boutiques -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+        <div *ngFor="let store of stores"
+          class="card p-4 hover:shadow-lg transition-all duration-300 relative">
+
+          <!-- Menu Actions en haut à droite -->
+          <button mat-icon-button [matMenuTriggerFor]="actionsMenu" [matMenuTriggerData]="{store: store}"
+            (click)="$event.stopPropagation()" matTooltip="Plus d'actions"
+            class="absolute top-2 right-2 z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 shadow-sm">
+            <mat-icon svgIcon="mat:more_vert"></mat-icon>
+          </button>
+
+          <!-- Nom de la boutique -->
+          <div class="py-2 flex items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-primary-600/10 text-primary-600 ltr:mr-3 rtl:ml-3 flex items-center justify-center flex-shrink-0">
+              <mat-icon class="icon-sm" svgIcon="mat:store"></mat-icon>
+            </div>
+            <div class="flex-1">
+              <p class="m-0 body-1 font-semibold">{{ store.name }}</p>
+              <p class="m-0 caption text-hint">Nom de la boutique</p>
+            </div>
+          </div>
+
+          <!-- Adresse -->
+          <div class="py-2 flex items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-primary-600/10 text-primary-600 ltr:mr-3 rtl:ml-3 flex items-center justify-center flex-shrink-0">
+              <mat-icon class="icon-sm" svgIcon="mat:location_on"></mat-icon>
+            </div>
+            <div class="flex-1">
+              <p class="m-0 body-1">{{ store.address }}</p>
+              <p class="m-0 caption text-hint">Adresse</p>
+            </div>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="py-2 flex items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-primary-600/10 text-primary-600 ltr:mr-3 rtl:ml-3 flex items-center justify-center flex-shrink-0">
+              <mat-icon class="icon-sm" svgIcon="mat:phone"></mat-icon>
+            </div>
+            <div class="flex-1">
+              <p class="m-0 body-1">{{ store.phone_one }}</p>
+              <p class="m-0 caption text-hint">Téléphone</p>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="py-2 flex items-start mb-2" *ngIf="store.email">
+            <div class="w-10 h-10 rounded-full bg-primary-600/10 text-primary-600 ltr:mr-3 rtl:ml-3 flex items-center justify-center flex-shrink-0">
+              <mat-icon class="icon-sm" svgIcon="mat:email"></mat-icon>
+            </div>
+            <div class="flex-1">
+              <p class="m-0 body-1 truncate">{{ store.email }}</p>
+              <p class="m-0 caption text-hint">Email</p>
+            </div>
+          </div>
+
+          <!-- Statut -->
+          <div class="py-2 flex items-start mb-4">
+            <div class="w-10 h-10 rounded-full bg-primary-600/10 text-primary-600 ltr:mr-3 rtl:ml-3 flex items-center justify-center flex-shrink-0">
+              <mat-icon class="icon-sm" svgIcon="mat:info"></mat-icon>
+            </div>
+            <div class="flex-1">
+              <span [class]="store.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                class="px-2 py-1 rounded-full text-xs font-semibold">
+                {{ store.active ? 'Active' : 'Inactive' }}
+              </span>
+              <p class="m-0 caption text-hint mt-1">Statut</p>
+            </div>
+          </div>
+
+          <!-- Bouton pour entrer dans le store -->
+          <button  mat-raised-button color="primary"
+            class="w-full flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200">
+            <span class="mr-2">Accéder à la boutique</span>
+            <mat-icon svgIcon="mat:arrow_forward"></mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Message si aucune boutique -->
+      <div *ngIf="stores.length === 0"
+        class="card flex-auto flex flex-col items-center justify-center py-10 sm:py-16 shadow-sm">
+        <img class="m-6 h-32 sm:h-48 opacity-80" src="assets/img/illustrations/idea.svg" />
+        <h2 class="text-xl sm:text-2xl mt-4 mb-6 text-center px-6 font-medium">
+          <span>Aucune boutique trouvée</span>
+        </h2>
+        <button mat-raised-button color="primary" (click)="createStore()"
+          class="shadow-md hover:shadow-lg transition-shadow duration-200">
+          Créer une boutique
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator
+        *ngIf="stores.length > 0"
+        [pageSizeOptions]="meta.pageSizeOptions || [10, 25, 50, 100]"
+        [pageSize]="meta.per_page"
+        [pageIndex]="meta.current_page - 1"
+        [length]="meta.total"
+        (page)="pageEvent($event)"
+        class="sticky left-0 mt-4">
+      </mat-paginator>
+    </vex-page-layout-content>
+  </div>
+</div>
+
+<!-- Menu contextuel pour les actions sur les boutiques -->
+<mat-menu #actionsMenu="matMenu" xPosition="before" yPosition="below">
+  <ng-template let-store="store" matMenuContent>
+    <button mat-menu-item  class="flex items-center">
+      <mat-icon svgIcon="mat:arrow_forward" color="primary" class="mr-2"></mat-icon>
+      <span>Accéder</span>
+    </button>
+    <button mat-menu-item  class="flex items-center" (click)="changeStatus(store)">
+      <mat-icon [svgIcon]="store.active ? 'mat:block' : 'mat:check_circle'" color="primary" class="mr-2"></mat-icon>
+      <span>{{ store.active ? 'Désactiver' : 'Activer' }}</span>
+    </button>
+    <button mat-menu-item (click)="updateStore(store)" class="flex items-center">
+      <mat-icon svgIcon="mat:edit" color="primary" class="mr-2"></mat-icon>
+      <span>Modifier</span>
+    </button>
+    <button (click)="delete(store)" mat-menu-item class="flex items-center" >
+      <mat-icon svgIcon="mat:delete" color="warn" class="mr-2"></mat-icon>
+      <span>Supprimer</span>
+    </button>
+  </ng-template>
+</mat-menu>

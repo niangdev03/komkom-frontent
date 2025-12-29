@@ -1,0 +1,152 @@
+<div class="w-full h-full flex flex-col">
+  <!-- En-tête avec recherche - Optimisé pour mobile et desktop -->
+  <div class="px-3 sm:px-6 pt-3 sm:pt-6 pb-4 mb-4 sm:pb-10 bg-primary-600/10 flex-none">
+    <div class="flex flex-col gap-3 container px-0">
+      <!-- Ligne 1: Titre et Bouton Retour (mobile et desktop) -->
+      <div class="flex items-center justify-between w-full">
+        <h2 class="display-1 font-bold m-0 flex items-center flex-1">
+          <span @scaleIn
+            class="w-9 h-9 sm:w-12 sm:h-12 rounded-full text-primary-600 mr-2 sm:mr-4 bg-primary-600/10 flex items-center justify-center flex-shrink-0">
+            <mat-icon svgIcon="mat:inventory_2" class="text-xl sm:text-2xl"></mat-icon>
+          </span>
+          <span @fadeInRight class="block text-lg sm:text-2xl truncate">Gestion des Produits</span>
+        </h2>
+
+        <!-- Bouton Retour - Toujours visible -->
+        <button class="flex-shrink-0 ml-2" mat-raised-button color="primary" type="button" (click)="goBack()">
+          <mat-icon svgIcon="mat:arrow_back" class="sm:mr-1"></mat-icon>
+          <span class="hidden sm:inline">Retour</span>
+        </button>
+      </div>
+
+      <!-- Ligne 2: Barre de recherche + Filtres (sur la même ligne) -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-3 w-full">
+        <!-- Barre de recherche -->
+        <div
+          class="flex items-center bg-white dark:bg-gray-800 rounded-full overflow-hidden relative pl-4 sm:pl-5 h-11 sm:h-12 flex-1 shadow-lg">
+          <mat-icon class="text-secondary flex-none" svgIcon="mat:search"></mat-icon>
+          <input [formControl]="searchCtrl"
+            class="border-0 h-11 sm:h-12 outline-none pl-3 sm:pl-4 placeholder:text-secondary bg-transparent flex-auto text-sm sm:text-base w-full"
+            placeholder="Rechercher un produit..." type="text" />
+        </div>
+
+        <!-- Filtres et actions (inline) -->
+        <div class="flex items-stretch gap-2 sm:gap-3 md:flex-none">
+          <!-- Filtre par catégorie -->
+          <mat-form-field subscriptSizing="dynamic" class="flex-1 md:w-40" appearance="outline">
+            <mat-label>Catégorie</mat-label>
+            <mat-select [(ngModel)]="selectedCategory" (selectionChange)="filterByCategory()">
+              <mat-option [value]="''">Toutes</mat-option>
+              <mat-option *ngFor="let item of categories" [value]="item.name">{{item.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Bouton d'ajout - Masqué pour les Sellers -->
+          <button *ngIf="!isSeller" (click)="add()" color="primary" mat-raised-button matTooltip="Ajouter Produit"
+            type="button"
+            class="flex-shrink-0 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200 h-11 sm:h-12 px-4">
+            <mat-icon svgIcon="mat:add" class="mr-1"></mat-icon>
+            <span>Ajouter</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal avec cartes de produits -->
+  <div class="w-full h-full flex flex-col">
+    <vex-page-layout-content [class.container]="layoutCtrl.value === 'fullwidth'"
+      [class.px-4]="layoutCtrl.value === 'boxed'" [class.sm:px-6]="layoutCtrl.value === 'boxed'">
+
+      <!-- Grille de cartes de produits - Design optimisé pour desktop et tablette -->
+      <div class="flex-1 overflow-auto">
+        <div
+          class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-8 2xl:grid-cols-10 gap-2">
+          <div *ngFor="let product of dataSource.data"
+            class="bg-white rounded-lg overflow-hidden shadow-sm border border-primary-300 hover:border-primary-500 transition-all hover:shadow-md"
+            [class.cursor-pointer]="!isSeller" (click)="!isSeller && update(product)">
+            <div class="aspect-square bg-gray-50 flex items-center justify-center p-2 relative">
+              <img *ngIf="product.image" [src]="product.image" [alt]="product.name"
+                class="max-h-full max-w-full object-contain">
+              <mat-icon *ngIf="!product.image" svgIcon="mat:image" class="text-gray-400"></mat-icon>
+
+              <!-- Badge de catégorie en overlay -->
+              <span *ngIf="product.category.name"
+                class="absolute top-1 right-1 text-[10px] font-medium bg-gray-800/70 text-white px-1.5 py-0.5 rounded-full truncate max-w-[75%]">
+                {{ product.category.name }}
+              </span>
+
+              <!-- Badge de stock faible -->
+              <mat-icon *ngIf="hasLowStock(product)" svgIcon="mat:warning"
+                class="absolute top-1 left-1 text-red-500 animate-pulse" matTooltip="Stock faible"
+                style="width: 16px; height: 16px;">
+              </mat-icon>
+            </div>
+
+            <div class="p-2 relative">
+              <h3 class="font-medium text-xs mb-0.5 line-clamp-2 min-h-[2rem]">{{ product.name }}</h3>
+              <div class="mt-0.5">
+                <span class="text-xs font-bold text-primary-500">
+                  {{ (product.unit_of_measures[0].price || 0) | integerSeparator }} Fcfa
+                </span>
+              </div>
+
+              <!-- Stock -->
+              <div class="mt-1 flex items-center gap-1">
+                <span class="text-[10px] text-gray-600">Stock:</span>
+                <span
+                  class="px-1 py-0.5 text-[10px] font-semibold text-white rounded-full transition-colors duration-200"
+                  [ngClass]="hasLowStock(product) ? 'bg-red-500' : 'bg-green-500'">
+                  {{ product.base_unit_quantity | quantityFormat }}
+                </span>
+              </div>
+
+              <!-- Menu actions - Masqué pour les Sellers -->
+              <button *ngIf="!isSeller" mat-icon-button type="button" (click)="$event.stopPropagation()"
+                [matMenuTriggerData]="{ customer: product }" [matMenuTriggerFor]="actionsMenu"
+                class="absolute top-0 right-0 scale-75">
+                <mat-icon svgIcon="mat:more_vert"></mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="dataSource.data.length === 0" class="col-span-full text-center py-6 sm:py-8">
+            <mat-icon svgIcon="mat:search_off" class="text-gray-400 text-4xl sm:text-6xl"></mat-icon>
+            <p class="text-gray-500 mt-2 text-sm sm:text-base">Aucun produit trouvé</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message quand aucun produit n'est trouvé - Amélioré visuellement -->
+      <div *ngIf="products.length === 0"
+        class="card flex-auto flex flex-col items-center justify-center py-10 sm:py-16 shadow-sm">
+        <img class="m-6 h-32 sm:h-48 opacity-80" src="assets/img/illustrations/idea.svg" />
+        <h2 class="text-xl sm:text-2xl mt-4 mb-6 text-center px-6 font-medium">
+          <span>Aucun produit ne correspond à vos filtres</span>
+        </h2>
+        <button mat-raised-button color="primary" (click)="resetFilters()"
+          class="shadow-md hover:shadow-lg transition-shadow duration-200">
+          Réinitialiser les filtres
+        </button>
+      </div>
+
+      <!-- Pagination améliorée -->
+      <mat-paginator *ngIf="products.length > 0" [pageSizeOptions]="meta.pageSizeOptions" [pageSize]="meta.per_page"
+        [pageIndex]="meta.current_page - 1" [length]="meta.total" (page)="pageEvent($event)" class="sticky left-0 mt-4">
+      </mat-paginator>
+    </vex-page-layout-content>
+  </div>
+</div>
+
+<mat-menu #actionsMenu="matMenu" xPosition="before" yPosition="below">
+  <ng-template let-customer="customer" matMenuContent>
+    <button mat-menu-item (click)="update(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:edit" color="primary" class="mr-2"></mat-icon>
+      <span>Modifier</span>
+    </button>
+    <button mat-menu-item (click)="delete(customer)" class="flex items-center">
+      <mat-icon svgIcon="mat:delete" color="warn" class="mr-2"></mat-icon>
+      <span>Supprimer</span>
+    </button>
+  </ng-template>
+</mat-menu>

@@ -1,0 +1,195 @@
+<vex-page-layout>
+
+  <div class="w-full h-full flex flex-col">
+    <div class="px-3 sm:px-6 pt-4 sm:pt-6 pb-4 sm:pb-10 bg-primary-600/10 flex-none">
+      <div class="flex items-center justify-between container px-0 gap-2 sm:gap-4">
+        <h2 class="display-1 font-bold m-0 flex items-center flex-1 min-w-0">
+          <span @scaleIn
+            class="w-9 h-9 sm:w-12 sm:h-12 rounded-full text-primary-600 mr-2 sm:mr-4 bg-primary-600/10 flex items-center justify-center flex-shrink-0">
+            <mat-icon svgIcon="mat:category" class="text-xl sm:text-2xl"></mat-icon>
+          </span>
+          <span @fadeInRight class="block text-lg sm:text-2xl truncate">Gestion des Catégories</span>
+        </h2>
+
+        <button class="flex-shrink-0" mat-raised-button color="primary" type="button" (click)="goBack()">
+          <mat-icon svgIcon="mat:arrow_back" class="sm:mr-1"></mat-icon>
+          <span class="hidden sm:inline">Retour</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <vex-page-layout-content [class.container]="layoutCtrl.value === 'fullwidth'"
+    [class.px-3]="layoutCtrl.value === 'boxed'" [class.sm:px-6]="layoutCtrl.value === 'boxed'" class="mt-8">
+    <div class="flex flex-col lg:flex-row w-full gap-3 sm:gap-4 -mt-12 sm:-mt-16">
+      <!-- Liste (première sur desktop, deuxième sur mobile) -->
+      <div class="w-full order-2 lg:order-1" [ngClass]="isSeller ? 'lg:w-full' : 'lg:w-8/12'">
+        <div class="card overflow-auto">
+          <div class="bg-app-bar px-3 sm:px-6 h-auto sm:h-16 py-3 sm:py-0 border-b sticky left-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-0">
+            <h2
+              class="title my-0 ltr:pr-0 sm:ltr:pr-4 rtl:pl-0 sm:rtl:pl-4 ltr:mr-0 sm:ltr:mr-4 rtl:ml-0 sm:rtl:ml-4 ltr:border-r-0 sm:ltr:border-r rtl:border-l-0 sm:rtl:border-l hidden sm:block flex-none">
+              <span>Liste des Catégories</span>
+            </h2>
+
+            <mat-form-field subscriptSizing="dynamic" class="w-full sm:max-w-lg">
+              <mat-icon matIconPrefix svgIcon="mat:search"></mat-icon>
+              <input matInput [formControl]="searchCtrl" placeholder="Recherchez ici..." type="text" />
+            </mat-form-field>
+
+            <span class="hidden sm:flex flex-1"></span>
+
+            <button [matMenuTriggerFor]="columnFilterMenu" class="hidden sm:inline-flex ml-0 sm:ml-4 flex-none" mat-icon-button
+              matTooltip="Filter Columns" type="button">
+              <mat-icon svgIcon="mat:filter_list"></mat-icon>
+            </button>
+
+          </div>
+
+          <!-- Vue tableau pour desktop -->
+          <div class="hidden sm:block overflow-x-auto">
+            <table [dataSource]="dataSource" class="w-full" mat-table matSort>
+              <!-- Colonne NON DE LA CATÉGORIE avec largeur fixe -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef class="uppercase w-48 min-w-[200px]">NOM DE LA CATÉGORIE</th>
+                <td mat-cell *matCellDef="let row" class="w-48 min-w-[200px]">{{row.name}}</td>
+              </ng-container>
+
+              <!-- Colonne DESCRIPTION qui s'étend -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef class="uppercase w-full">DESCRIPTION</th>
+                <td mat-cell *matCellDef="let row" class="w-full">
+                  {{row.description}}
+                </td>
+              </ng-container>
+              <!-- Actions Column - Masqué pour les Sellers -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="uppercase w-32 min-w-[128px]">ACTIONS</th>
+                <td mat-cell *matCellDef="let row" class="w-32 min-w-[128px]">
+                  <button *ngIf="!isSeller" (click)="editCategory(row)" color="primary" mat-icon-button matTooltip="Modifier" type="button">
+                    <mat-icon svgIcon="mat:edit"></mat-icon>
+                  </button>
+
+                  <button *ngIf="!isSeller" color="warn" (click)="delete(row)" mat-icon-button matTooltip="Supprimer" type="button">
+                    <mat-icon svgIcon="mat:delete"></mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <!-- Header and Row Definitions -->
+              <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: visibleColumns"
+                class="hover:bg-hover transition duration-400 ease-out-swift cursor-pointer"></tr>
+            </table>
+          </div>
+
+          <!-- Vue cartes pour mobile -->
+          <div class="sm:hidden p-3">
+            <div *ngIf="categories.length > 0" class="space-y-3">
+              <div *ngFor="let category of categories"
+                   class="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
+
+                <!-- Nom de la catégorie -->
+                <div class="flex items-start justify-between mb-2">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 text-sm mb-1">{{ category.name }}</h3>
+                    <p class="text-xs text-gray-600 line-clamp-2">{{ category.description }}</p>
+                  </div>
+                </div>
+
+                <!-- Actions - Masqué pour les Sellers -->
+                <div *ngIf="!isSeller" class="flex justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
+                  <button (click)="editCategory(category)" color="primary" mat-icon-button class="!w-9 !h-9">
+                    <mat-icon svgIcon="mat:edit" style="width: 20px; height: 20px; font-size: 20px;"></mat-icon>
+                  </button>
+                  <button color="warn" (click)="delete(category)" mat-icon-button class="!w-9 !h-9">
+                    <mat-icon svgIcon="mat:delete" style="width: 20px; height: 20px; font-size: 20px;"></mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message vide -->
+          <div *ngIf="categories.length === 0" class="flex-auto flex flex-col items-center justify-center py-8 sm:py-12">
+            <img class="h-32 sm:h-64 mb-4 sm:mb-6" src="assets/img/illustrations/idea.svg" />
+            <h2 class="headline mt-2 sm:mt-4 mb-4 sm:mb-6 text-center text-base sm:text-lg px-4">
+              <span>Aucune catégorie ne correspond à vos filtres</span>
+            </h2>
+          </div>
+          <mat-paginator
+                  *ngIf="categories.length > 0"
+                  [pageSizeOptions]="meta.pageSizeOptions"
+                  [pageSize]="meta.per_page"
+                  [pageIndex]="meta.current_page - 1"
+                  [length]="meta.total"
+                  (page)="pageEvent($event)"
+                  class="sticky left-0">
+          </mat-paginator>
+
+        </div>
+      </div>
+
+      <!-- Formulaire (premier sur mobile, deuxième sur desktop) - Masqué pour les Sellers -->
+      <div *ngIf="!isSeller" class="w-full lg:w-4/12 order-1 lg:order-2">
+        <div class="card overflow-auto">
+          <div class="bg-app-bar px-3 sm:px-6 h-auto sm:h-16 py-3 sm:py-0 border-b sticky left-0 flex items-center">
+            <h2 class="title my-0 text-base sm:text-lg">
+              <span>{{ isEditing ? 'Modifier la Catégorie' : 'Nouvelle Catégorie' }}</span>
+            </h2>
+          </div>
+
+          <div class="p-3 sm:p-4 lg:p-6">
+            <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+              <mat-form-field class="w-full" subscriptSizing="dynamic">
+                <mat-label>Nom</mat-label>
+                <input matInput formControlName="name" placeholder="Nom de la catégorie">
+                <mat-error *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
+                  Le nom est requis
+                </mat-error>
+                <mat-error *ngIf="categoryForm.get('name')?.errors?.['maxlength']">
+                  Le nom ne doit pas dépasser 50 caractères
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field class="w-full mt-3 sm:mt-4" subscriptSizing="dynamic">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" rows="4" placeholder="Description de la catégorie"></textarea>
+                <mat-error *ngIf="categoryForm.get('description')?.errors?.['required']">
+                  La description est requise
+                </mat-error>
+                <mat-error *ngIf="categoryForm.get('description')?.errors?.['maxlength']">
+                  La description ne doit pas dépasser 255 caractères
+                </mat-error>
+              </mat-form-field>
+
+              <div class="flex justify-end gap-2 mt-4 sm:mt-6">
+                <button
+                  mat-button
+                  type="button"
+                  (click)="resetForm()"
+                  class="text-sm sm:text-base">
+                  Annuler
+                </button>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="categoryForm.invalid"
+                  class="text-sm sm:text-base">
+                  {{ isEditing ? 'Modifier' : 'Ajouter' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </vex-page-layout-content>
+</vex-page-layout>
+
+<mat-menu #columnFilterMenu="matMenu" xPosition="before" yPosition="below">
+  <button (click)="toggleColumnVisibility(column, $event)" *ngFor="let column of columns" class="mat-menu-item block">
+    <mat-checkbox (click)="$event.stopPropagation()" [(ngModel)]="column.visible" color="primary">
+      {{ column.label }}
+    </mat-checkbox>
+  </button>
+</mat-menu>

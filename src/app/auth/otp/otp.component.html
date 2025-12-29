@@ -1,0 +1,58 @@
+<div class="w-full h-full bg-pattern flex flex-col items-center justify-center p-4">
+  <!-- Card container avec classes responsives -->
+  <div @fadeInUp
+    class="card overflow-hidden w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto border border-primary-500">
+
+    <!-- Barre de chargement -->
+    <mat-progress-bar *ngIf="mainFrameLoading" mode="indeterminate" color="primary"
+      class="overflow-hidden w-full"></mat-progress-bar>
+
+    <!-- Logo -->
+    <div class="p-4 sm:p-6 pb-0 flex flex-col items-center justify-center">
+      <div class="fill-current text-center">
+        <img class="w-36 sm:w-36" src="assets/img/logo/logo.png" />
+      </div>
+    </div>
+
+    <!-- Titre et description -->
+    <div class="text-center mt-2 sm:mt-4">
+      <h2 class="title m-0 text-xl sm:text-2xl">Vérification du code OTP</h2>
+      <h4 class="body-2 text-secondary m-0 text-sm sm:text-base">
+        Entrez le code de vérification envoyé à votre adresse email.
+      </h4>
+      <p *ngIf="email" class="mt-2 text-sm sm:text-base font-medium text-primary">
+        {{ maskEmail() }}
+      </p>
+    </div>
+
+    <!-- Champs OTP -->
+    <div class="p-4 sm:p-6 flex justify-center gap-2 sm:gap-3 mt-4 sm:mt-6">
+      <input *ngFor="let control of otpControls; let i = index" [id]="'otp-' + i" type="text" maxlength="1"
+        [(ngModel)]="otp[i]" (input)="handleChange($event, i)" (keydown)="handleKeyDown($event, i)" class="w-10 sm:w-12 h-10 sm:h-12 text-center border-2 border-gray-400 rounded-lg text-lg sm:text-xl
+               focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all" />
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="existErrorMessage"
+      class="mt-4 p-4 text-red-800 bg-red-100 border border-red-600 rounded text-center mx-4 sm:mx-6">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Bouton Vérifier -->
+    <div class="p-4 sm:p-6 flex flex-col items-center">
+      <button (click)="verify()" color="primary" mat-raised-button type="button"
+        [disabled]="!isValidOTP() && !isSubmitting" class="w-full sm:w-auto px-6">
+        <mat-icon svgIcon="mat:check_circle" *ngIf="!isSubmitting" class="mr-1"></mat-icon>
+        <mat-icon *ngIf="isSubmitting" class="m-2" color="warn">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        VÉRIFIER
+      </button>
+
+      <p class="text-secondary text-center text-xs sm:text-sm mt-4">
+        Vous n'avez pas reçu le code ?
+        <a href="#" (click)="resendCode()" class="text-primary font-medium">Renvoyer</a>
+      </p>
+    </div>
+  </div>
+</div>

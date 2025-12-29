@@ -1,0 +1,253 @@
+<div class="w-full h-full flex flex-col">
+  <!-- En-tête optimisé pour mobile -->
+  <div class="px-3 sm:px-6 pt-3 sm:pt-6 pb-4 sm:pb-10 bg-primary-600/10 flex-none">
+    <div class="flex flex-col gap-3 container px-0">
+      <!-- Ligne 1: Titre et Bouton Retour -->
+      <div class="flex items-center justify-between w-full">
+        <h2 class="display-1 font-bold m-0 flex items-center flex-1">
+          <span @scaleIn
+            class="w-9 h-9 sm:w-12 sm:h-12 rounded-full text-primary-600 mr-2 sm:mr-4 bg-primary-600/10 flex items-center justify-center flex-shrink-0">
+            <mat-icon svgIcon="mat:local_shipping" class="text-xl sm:text-2xl"></mat-icon>
+          </span>
+          <span @fadeInRight class="block text-lg sm:text-2xl truncate">Nouvel Approvisionnement</span>
+        </h2>
+
+        <!-- Bouton Retour - Toujours visible -->
+        <button class="flex-shrink-0 ml-2" mat-raised-button color="primary" type="button" (click)="goBack()">
+          <mat-icon svgIcon="mat:arrow_back" class="sm:mr-1"></mat-icon>
+          <span class="hidden sm:inline">Retour</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="container-fluid px-2 sm:px-4 py-2 flex-auto overflow-auto">
+    <form [formGroup]="procurementForm" (ngSubmit)="save()">
+      <!-- Carte principale -->
+      <div class="card rounded-lg shadow-md overflow-hidden">
+        <!-- Section fournisseur et statut -->
+        <div class="p-4 sm:p-6 bg-gray-50 border-b">
+          <h3 class="text-base sm:text-lg font-semibold mb-4 flex items-center text-gray-800">
+            <mat-icon svgIcon="mat:business" class="mr-2 text-primary-600"></mat-icon>
+            Informations générales
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+            <!-- Fournisseur avec recherche -->
+            <mat-form-field class="w-full" appearance="outline">
+              <mat-label>Fournisseur</mat-label>
+              <mat-select formControlName="supplier_id" required>
+                <!-- Champ de recherche -->
+                <mat-option class="sticky top-0 bg-white z-10 border-b">
+                  <div class="flex items-center p-2" (click)="$event.stopPropagation()">
+                    <mat-icon class="text-gray-500 mr-2" svgIcon="mat:search"></mat-icon>
+                    <input [formControl]="supplierSearchCtrl" placeholder="Rechercher un fournisseur..."
+                      class="border-0 outline-none flex-1 text-sm" (click)="$event.stopPropagation()"
+                      (keydown)="$event.stopPropagation()" />
+                    <mat-icon *ngIf="isLoadingSuppliers" class="animate-spin text-primary-500">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                      </svg>
+                    </mat-icon>
+                  </div>
+                </mat-option>
+
+                <!-- Liste des fournisseurs -->
+                <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                  <div class="flex items-center">
+                    <mat-icon class="mr-2 text-gray-500 text-sm" svgIcon="mat:business"></mat-icon>
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ supplier.name }}</span>
+                      <span *ngIf="supplier.phone_one" class="text-xs text-gray-500">{{ supplier.phone_one }}</span>
+                    </div>
+                  </div>
+                </mat-option>
+
+                <!-- Message si aucun résultat -->
+                <mat-option *ngIf="suppliers.length === 0 && !isLoadingSuppliers" disabled>
+                  <span class="text-gray-500 text-sm">Aucun fournisseur trouvé</span>
+                </mat-option>
+              </mat-select>
+              <mat-icon matIconPrefix svgIcon="mat:business" class="text-primary-500"></mat-icon>
+              <mat-error *ngIf="procurementForm.get('supplier_id')?.hasError('required')">
+                Le fournisseur est requis
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Section produits -->
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base sm:text-lg font-semibold flex items-center text-gray-800">
+              <mat-icon svgIcon="mat:inventory" class="mr-2 text-primary-600"></mat-icon>
+              Produits à approvisionner
+            </h3>
+            <button mat-mini-fab color="primary" type="button" (click)="addLineItem()"
+              class="shadow-md hover:shadow-lg transition" matTooltip="Ajouter un produit">
+              <mat-icon svgIcon="mat:add"></mat-icon>
+            </button>
+          </div>
+
+          <!-- Message si aucun produit -->
+          <div *ngIf="lineItems.length === 0" class="flex-auto flex flex-col items-center justify-center">
+            <mat-icon svgIcon="mat:inventory" class="text-gray-400 text-5xl mb-2"></mat-icon>
+            <img class="m-12 h-64" src="assets/img/illustrations/idea.svg" />
+            <p class="text-gray-600">Aucun produit ajouté. Cliquez sur le bouton + pour commencer.</p>
+          </div>
+
+          <!-- Liste des produits -->
+          <div formArrayName="line_items" class="space-y-4">
+            <div *ngFor="let lineItem of lineItems.controls; let i = index" [formGroupName]="i"
+              class="bg-white border-2 rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition"
+              [class.border-red-300]="lineItem.invalid && lineItem.touched"
+              [class.border-gray-200]="lineItem.valid || !lineItem.touched">
+
+              <!-- En-tête de la ligne -->
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs sm:text-sm font-semibold text-gray-600">
+                  Produit {{ i + 1 }}
+                </span>
+                <button mat-icon-button color="warn" type="button" (click)="removeLineItem(i)"
+                  matTooltip="Supprimer ce produit">
+                  <mat-icon svgIcon="mat:delete"></mat-icon>
+                </button>
+              </div>
+
+              <!-- Grille responsive pour les champs -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Produit avec recherche (6 colonnes sur large) -->
+                <div class="lg:col-span-6">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Produit</mat-label>
+                    <mat-select formControlName="product_id" required (openedChange)="$event && setupProductSearch(i)">
+                      <!-- Champ de recherche -->
+                      <mat-option class="sticky top-0 bg-white z-10 border-b">
+                        <div class="flex items-center p-2" (click)="$event.stopPropagation()">
+                          <mat-icon class="text-gray-500 mr-2" svgIcon="mat:search"></mat-icon>
+                          <input [formControl]="productSearchCtrls[i]" placeholder="Rechercher un produit..."
+                            class="border-0 outline-none flex-1 text-sm" (click)="$event.stopPropagation()"
+                            (keydown)="$event.stopPropagation()" />
+                          <mat-icon *ngIf="isLoadingProducts[i]" class="animate-spin text-primary-500">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                              </circle>
+                              <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                              </path>
+                            </svg>
+                          </mat-icon>
+                        </div>
+                      </mat-option>
+
+                      <!-- Liste des produits -->
+                      <mat-option *ngFor="let product of products" [value]="product.id"
+                        [disabled]="isProductSelected(product.id, i)">
+                        <div class="flex flex-col">
+                          <span class="font-medium">{{ product.name }}</span>
+                          <span *ngIf="product.description" class="text-xs text-gray-500 truncate">
+                            {{ product.description }}
+                          </span>
+                        </div>
+                      </mat-option>
+
+                      <!-- Message si aucun résultat -->
+                      <mat-option *ngIf="products.length === 0 && !isLoadingProducts[i]" disabled>
+                        <span class="text-gray-500 text-sm">Aucun produit trouvé</span>
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="lineItem.get('product_id')?.hasError('required')">
+                      Le produit est requis
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Quantité (3 colonnes sur large) -->
+                <div class="lg:col-span-3">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Quantité</mat-label>
+                    <input matInput type="number" min="1" formControlName="quantity" required>
+                    <mat-error *ngIf="lineItem.get('quantity')?.hasError('required')">
+                      La quantité est requise
+                    </mat-error>
+                    <mat-error *ngIf="lineItem.get('quantity')?.hasError('min')">
+                      La quantité doit être au moins 1
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Prix unitaire (3 colonnes sur large) -->
+                <div class="lg:col-span-3">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Prix unitaire</mat-label>
+                    <input matInput type="number" min="0" step="0.01" formControlName="purchase_price" required>
+                    <span matSuffix class="text-primary-600">FCFA&nbsp;</span>
+                    <mat-error *ngIf="lineItem.get('purchase_price')?.hasError('required')">
+                      Le prix est requis
+                    </mat-error>
+                    <mat-error *ngIf="lineItem.get('purchase_price')?.hasError('min')">
+                      Le prix doit être positif
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Numéros de série (si nécessaire) -->
+              <div *ngIf="getSerialNumbers(i).length > 0" formArrayName="serial_numbers"
+                class="mt-3 pt-3 border-t border-gray-200">
+                <div class="mb-2 text-sm font-medium text-gray-700 flex items-center">
+                  <mat-icon svgIcon="mat:pin" class="mr-1 text-orange-600 text-sm"></mat-icon>
+                  Numéros de série ({{ getSerialNumbers(i).length }} requis)
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                  <mat-form-field *ngFor="let serial of getSerialNumbers(i).controls; let j = index" class="w-full"
+                    appearance="outline">
+                    <mat-label>N° {{ j + 1 }}</mat-label>
+                    <input matInput [formControlName]="j" required type="text" placeholder="Ex: SN123456">
+                    <mat-error *ngIf="getSerialNumbers(i).at(j).hasError('required')">
+                      Requis
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Message d'erreur global pour la ligne -->
+              <div *ngIf="lineItem.hasError('serialNumbersMismatch') && lineItem.touched"
+                class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-center">
+                <mat-icon svgIcon="mat:error" class="mr-2 text-red-600"></mat-icon>
+                Le nombre de numéros de série ne correspond pas à la quantité
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="flex flex-col-reverse sm:flex-row justify-end mt-4 gap-2 sm:gap-4">
+        <button mat-stroked-button type="button" (click)="goBack()" class="w-full sm:w-auto">
+          <mat-icon svgIcon="mat:cancel" class="mr-2"></mat-icon>
+          Annuler
+        </button>
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="procurementForm.invalid || isSubmitting || lineItems.length === 0" class="w-full sm:w-auto">
+          <mat-icon *ngIf="!isSubmitting" svgIcon="mat:save" class="mr-2"></mat-icon>
+          <mat-icon *ngIf="isSubmitting" class="mr-2 animate-spin">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+          </mat-icon>
+          <span>{{ isSubmitting ? 'Enregistrement...' : 'Enregistrer' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
