@@ -35,7 +35,6 @@ export class AuthService {
 
   constructor() {
     this.checkAuthStatus().subscribe();
-    this.loadUser();
   }
 
   login(credentials: {
@@ -65,11 +64,11 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.currentUser$.next(response.user);
-          // Si l'utilisateur nécessite OTP, on ne le considère pas comme authentifié
           this.isAuthenticatedSubject.next(!response.user.requires_otp);
         }),
         map((response) => !response.user.requires_otp),
         catchError(() => {
+          // Ici, on échoue silencieusement car l'utilisateur n'est juste pas connecté
           this.currentUser$.next(null);
           this.isAuthenticatedSubject.next(false);
           return of(false);
@@ -216,7 +215,10 @@ export class AuthService {
     password: string;
     password_confirmation: string;
   }): Observable<ResponseMessage> {
-    return this.http.post<ResponseMessage>(`${this.apiUrl}/reset-password`, data);
+    return this.http.post<ResponseMessage>(
+      `${this.apiUrl}/reset-password`,
+      data
+    );
   }
 
   getCurrentUserSync(): User | null {
