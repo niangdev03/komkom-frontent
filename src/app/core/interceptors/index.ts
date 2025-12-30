@@ -1,18 +1,19 @@
-import { HTTP_INTERCEPTORS } from "@angular/common/http";
-import { AuthInterceptor } from "./auth-interceptor";
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './auth-interceptor';
 // import { HttpsInterceptor } from "./https-interceptor";
-import { ServerErrorInterceptor } from "./server-error.interceptor";
+import { ServerErrorInterceptor } from './server-error.interceptor';
+import { HttpsInterceptor } from './https-interceptor';
 
 export const httpInterceptorProviders = [
   {
     provide: HTTP_INTERCEPTORS,
     useClass: AuthInterceptor,
-    multi: true,
+    multi: true
   },
-  // { provide: HTTP_INTERCEPTORS, useClass: HttpsInterceptor, multi: true },
-    {
+  { provide: HTTP_INTERCEPTORS, useClass: HttpsInterceptor, multi: true },
+  {
     provide: HTTP_INTERCEPTORS,
     useClass: ServerErrorInterceptor,
-    multi: true,
-  },
+    multi: true
+  }
 ];

@@ -1,0 +1,93 @@
+name: Deploy Angular Frontend (SSH)
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: 81.17.100.213
+          username: deploy
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # --- CONFIGURATION ---
+            # Nom du dossier dans "dist/" (vérifie ton angular.json si différent de "vex")
+            PROJECT_NAME="vex"
+
+            APP_DIR="/var/www/komkom/frontend"
+            REPO_SSH_URL="git@github.com:niangdev03/komkom-frontent.git"
+
+            # On utilise un dossier temporaire unique pour éviter les conflits
+            TEMP_DIR="/tmp/angular-deploy-$(date +%s)"
+
+            echo "🚀 Début du déploiement Angular..."
+
+            # --- 1. PRÉPARATION AU CLONAGE ---
+            mkdir -p $TEMP_DIR
+            echo "📦 Clonage du dépôt dans un dossier temporaire..."
+            git clone $REPO_SSH_URL $TEMP_DIR
+            cd $TEMP_DIR
+
+            # --- 2. INSTALLATION DES DÉPENDANCES ---
+            echo "📥 Installation des dépendances..."
+            # 'npm ci' est plus rapide et plus fiable que 'npm install' pour les CI/CD
+            npm ci --no-audit --prefer-offline
+
+            # --- 3. BUILD DE L’APPLICATION ---
+            echo "🏗️  Compilation (Build) de l’application..."
+            # Utilisation de la configuration production standard
+            npm run build -- --configuration=production
+
+            # --- 4. DÉTECTION DU DOSSIER DE BUILD (Angular 16 vs 17+) ---
+            # Angular 17+ met souvent les fichiers dans dist/nom-projet/browser
+            if [ -d "dist/$PROJECT_NAME/browser" ]; then
+              BUILD_PATH="dist/$PROJECT_NAME/browser"
+              echo "✅ Build détecté dans : $BUILD_PATH (Structure Angular 17+)"
+            elif [ -d "dist/$PROJECT_NAME" ]; then
+              BUILD_PATH="dist/$PROJECT_NAME"
+              echo "✅ Build détecté dans : $BUILD_PATH (Structure Standard)"
+            else
+              echo "❌ Erreur CRITIQUE : Dossier de build introuvable !"
+              echo "Contenu de dist/ :"
+              ls -la dist/ || echo "Dossier dist inexistant"
+              exit 1
+            fi
+
+            # --- 5. DÉPLOIEMENT (SWAP) ---
+            echo "🚚 Mise en place des nouveaux fichiers..."
+
+            # On s'assure que le dossier de destination existe
+            sudo mkdir -p $APP_DIR
+
+            # On vide le dossier de destination proprement
+            # (Attention : cela crée une micro-coupure de quelques millisecondes)
+            sudo rm -rf $APP_DIR/*
+
+            # Copie du contenu du build vers le dossier final
+            sudo cp -r $BUILD_PATH/* $APP_DIR/
+
+            # Copie du .htaccess si tu en as un à la racine (optionnel, pour Apache/LiteSpeed)
+            if [ -f "src/.htaccess" ]; then
+               sudo cp src/.htaccess $APP_DIR/
+            fi
+
+            # --- 6. PERMISSIONS ---
+            echo "🔐 Application des permissions..."
+            sudo chown -R www-data:www-data $APP_DIR
+            sudo chmod -R 755 $APP_DIR
+
+            # --- 7. NETTOYAGE ---
+            echo "🧹 Suppression du dossier temporaire de build..."
+            cd ~
+            rm -rf $TEMP_DIR
+
+            # --- 8. REDÉMARRAGE NGINX ---
+            # Utile pour vider les caches Nginx s'ils sont configurés
+            sudo systemctl reload nginx
+            echo "✅ Déploiement Angular terminé avec succès !"
