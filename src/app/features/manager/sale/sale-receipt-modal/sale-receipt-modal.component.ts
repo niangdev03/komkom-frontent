@@ -38,7 +38,6 @@ export class SaleReceiptModalComponent {
   ) {
     this.saleDetails = data.saleDetails;
     this.store = data.store;
-    console.log(this.saleDetails);
   }
   close(): void {
     this.dialogRef.close();

@@ -66,6 +66,7 @@ import { IntegerSeparatorPipe } from 'src/app/pipes/integer-separator.pipe';
 import { SaleItemWithProduct } from 'src/app/interfaces/Sale';
 import { AuthService } from 'src/app/auth/services/auth.service';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 type SaleItem = SaleItemWithProduct;
 
 @Component({
@@ -154,7 +155,8 @@ export class SaleAddComponent implements OnInit {
     private customerService: CustomerService,
     private categoryService: CategoryService,
     private authService: AuthService,
-    private location: Location
+    private location: Location,
+    private router: Router
   ) {
     // Initialiser le formulaire vide dans le constructeur
     this.initForms();
@@ -619,12 +621,14 @@ export class SaleAddComponent implements OnInit {
         this.showMessage(response.message, 'success-snackbar');
         this.showSuccess = true;
         this.dialog.closeAll();
-        setTimeout(() => {
-          this.loadProducts();
-          this.resetPOS();
-          this.showSuccess = false;
-        }, 1000);
         this.isSubmitting = false;
+
+        // Rediriger vers la liste des ventes après un court délai
+        setTimeout(() => {
+          this.router.navigate(['/index/manager/sale/list'], {
+            state: { store: this.store, company: this.company }
+          });
+        }, 1000);
       },
       error: (error) => {
         const errorMessage =

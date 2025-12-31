@@ -1,4 +1,11 @@
-import { NgFor, NgIf, NgClass, CommonModule, DatePipe, registerLocaleData } from '@angular/common';
+import {
+  NgFor,
+  NgIf,
+  NgClass,
+  CommonModule,
+  DatePipe,
+  registerLocaleData
+} from '@angular/common';
 import { Component, LOCALE_ID, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,7 +39,7 @@ registerLocaleData(localeFr, 'fr');
   selector: 'vex-sale-details',
   templateUrl: './sale-details.component.html',
   styleUrls: ['./sale-details.component.scss'],
-    standalone: true,
+  standalone: true,
   imports: [
     MatButtonToggleModule,
     ReactiveFormsModule,
@@ -56,7 +63,7 @@ registerLocaleData(localeFr, 'fr');
     CommonModule,
     MatSlideToggleModule,
     MatCardModule,
-    MatDividerModule,
+    MatDividerModule
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr' }, DatePipe]
 })
@@ -64,14 +71,19 @@ export class SaleDetailsComponent implements OnInit {
   sale: SaleDetails | null = null;
   store: Store | null = null;
   company: Company | null = null;
-  displayedColumns: string[] = ['product', 'quantity', 'unit_price', 'subtotal', 'serial_numbers'];
+  displayedColumns: string[] = [
+    'product',
+    'quantity',
+    'unit_price',
+    'subtotal',
+    'serial_numbers'
+  ];
   isLoading = false;
-
 
   constructor(
     private router: Router,
     private saleService: SaleService,
-    private notificationService: NotificationService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -93,7 +105,9 @@ export class SaleDetailsComponent implements OnInit {
           Swal.fire({
             icon: 'error',
             title: 'Erreur',
-            text: error?.error?.message || 'Impossible de charger les détails de la vente.',
+            text:
+              error?.error?.message ||
+              'Impossible de charger les détails de la vente.',
             confirmButtonColor: '#d33'
           });
           this.isLoading = false;
@@ -106,25 +120,25 @@ export class SaleDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/index/manager/sale/list'],{
-        state:{store:this.store, company:this.company}
-      });
+    this.router.navigate(['/index/manager/sale/list'], {
+      state: { store: this.store, company: this.company }
+    });
   }
 
   getStatusClass(status: string): string {
     const classMap: { [key: string]: string } = {
-      'pending': 'bg-orange-500/10 text-orange-500',
-      'confirmed': 'bg-green-500/10 text-green-500',
-      'cancelled': 'bg-red-500/10 text-red-500'
+      pending: 'bg-orange-500/10 text-orange-500',
+      confirmed: 'bg-green-500/10 text-green-500',
+      cancelled: 'bg-red-500/10 text-red-500'
     };
     return classMap[status] || '';
   }
 
   getStatusLabel(status: string): string {
     const labelMap: { [key: string]: string } = {
-      'pending': 'En attente',
-      'confirmed': 'Confirmée',
-      'cancelled': 'Annulée'
+      pending: 'En attente',
+      confirmed: 'Confirmée',
+      cancelled: 'Annulée'
     };
     return labelMap[status] || status;
   }
@@ -148,7 +162,14 @@ export class SaleDetailsComponent implements OnInit {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Oui, valider',
-      cancelButtonText: 'Annuler'
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -179,7 +200,9 @@ export class SaleDetailsComponent implements OnInit {
             Swal.fire({
               icon: 'error',
               title: 'Erreur',
-              text: error?.error?.message || 'Une erreur est survenue lors de la validation.',
+              text:
+                error?.error?.message ||
+                'Une erreur est survenue lors de la validation.',
               confirmButtonColor: '#d33'
             });
             this.isLoading = false;
@@ -200,7 +223,14 @@ export class SaleDetailsComponent implements OnInit {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Oui, annuler la vente',
-      cancelButtonText: 'Non, garder la vente'
+      cancelButtonText: 'Non, garder la vente',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -231,7 +261,9 @@ export class SaleDetailsComponent implements OnInit {
             Swal.fire({
               icon: 'error',
               title: 'Erreur',
-              text: error?.error?.message || 'Une erreur est survenue lors de l\'annulation.',
+              text:
+                error?.error?.message ||
+                "Une erreur est survenue lors de l'annulation.",
               confirmButtonColor: '#d33'
             });
             this.isLoading = false;

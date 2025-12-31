@@ -17,7 +17,8 @@ import {
 import {
   ReactiveFormsModule,
   FormsModule,
-  UntypedFormControl
+  UntypedFormControl,
+  FormControl
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -27,6 +28,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import {
   MatPaginator,
   MatPaginatorModule,
@@ -65,6 +68,7 @@ import localeFr from '@angular/common/locales/fr';
 import { IntegerSeparatorPipe } from 'src/app/pipes/integer-separator.pipe';
 registerLocaleData(localeFr, 'fr');
 import { Location } from '@angular/common';
+import { ExportService } from 'src/app/auth/services/export.service';
 
 @Component({
   selector: 'vex-expense-list',
@@ -98,7 +102,9 @@ import { Location } from '@angular/common';
     CommonModule,
     MatSlideToggleModule,
     MatIconModule,
-    IntegerSeparatorPipe
+    IntegerSeparatorPipe,
+    MatDatepickerModule,
+    MatFormFieldModule
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr' }, DatePipe]
 })
@@ -112,6 +118,10 @@ export class ExpenseListComponent implements OnInit {
   dataSource!: MatTableDataSource<Expense>;
   isLoading = true; // ← Flag de chargement
   expensesResponse!: ResponseExpense;
+
+  // Form controls pour les dates d'export
+  startDateControl = new FormControl<Date | null>(null);
+  endDateControl = new FormControl<Date | null>(null);
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -156,7 +166,8 @@ export class ExpenseListComponent implements OnInit {
     public dialog: MatDialog,
     private expenseService: ExpenseService,
     private cd: ChangeDetectorRef,
-    private location: Location
+    private location: Location,
+    private exportService: ExportService
   ) {}
 
   get visibleColumns() {
@@ -297,7 +308,14 @@ export class ExpenseListComponent implements OnInit {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Oui, supprimer',
-      cancelButtonText: 'Annuler'
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -329,6 +347,78 @@ export class ExpenseListComponent implements OnInit {
               confirmButtonColor: '#d33'
             });
           }
+        });
+      }
+    });
+  }
+
+  /**
+   * Formate une date au format YYYY-MM-DD
+   */
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * Exporte les dépenses en PDF
+   */
+  exportToPDF(): void {
+    const startDate = this.startDateControl.value;
+    const endDate = this.endDateControl.value;
+
+    if (!startDate) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Attention',
+        text: 'Veuillez sélectionner au moins une date de début.',
+        confirmButtonColor: '#3085d6'
+      });
+      return;
+    }
+
+    const filters = {
+      start_date: this.formatDate(startDate),
+      end_date: endDate ? this.formatDate(endDate) : undefined
+    };
+
+    Swal.fire({
+      title: 'Génération du PDF...',
+      text: 'Veuillez patienter',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    this.expenseService.listForExport(this.store.id, filters).subscribe({
+      next: (response) => {
+        Swal.close();
+        if (response.data && response.data.length > 0) {
+          this.exportService.exportExpensesToPDF(response.data, filters);
+          Swal.fire({
+            icon: 'success',
+            title: 'Succès',
+            text: 'Le PDF a été généré avec succès.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            icon: 'info',
+            title: 'Aucune donnée',
+            text: 'Aucune dépense trouvée pour la période sélectionnée.',
+            confirmButtonColor: '#3085d6'
+          });
+        }
+      },
+      error: (error) => {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: error?.message || 'Une erreur est survenue lors de l\'exportation.',
+          confirmButtonColor: '#d33'
         });
       }
     });

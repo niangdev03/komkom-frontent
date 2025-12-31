@@ -61,17 +61,6 @@
           Le mode de paiement est requis
         </mat-error>
       </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-full" *ngIf="showPhoneField()">
-        <mat-label>Numéro de téléphone</mat-label>
-        <input matInput type="tel" formControlName="phone_number">
-        <mat-error *ngIf="paymentForm.get('phone_number')?.hasError('required')">
-          Le numéro de téléphone est requis
-        </mat-error>
-        <mat-error *ngIf="paymentForm.get('phone_number')?.hasError('pattern')">
-          Format de numéro invalide
-        </mat-error>
-      </mat-form-field>
     </div>
   </form>
 </mat-dialog-content>

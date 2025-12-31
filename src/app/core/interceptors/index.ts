@@ -1,6 +1,5 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth-interceptor';
-// import { HttpsInterceptor } from "./https-interceptor";
 import { ServerErrorInterceptor } from './server-error.interceptor';
 import { HttpsInterceptor } from './https-interceptor';
 

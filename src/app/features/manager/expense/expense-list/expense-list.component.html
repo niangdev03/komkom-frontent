@@ -46,6 +46,33 @@
             </button>
         </div>
 
+        <!-- Section Export PDF -->
+        <div class="bg-gray-50 px-3 sm:px-6 py-3 border-b">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <!-- Date de début -->
+            <mat-form-field appearance="outline" class="mat-form-field-sm w-full sm:w-auto">
+              <mat-label>Date de début</mat-label>
+              <input matInput [matDatepicker]="startDatePicker" [formControl]="startDateControl" />
+              <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #startDatePicker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Date de fin -->
+            <mat-form-field appearance="outline" class="mat-form-field-sm w-full sm:w-auto">
+              <mat-label>Date de fin (Optionnelle)</mat-label>
+              <input matInput [matDatepicker]="endDatePicker" [formControl]="endDateControl" />
+              <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #endDatePicker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Bouton Exporter PDF -->
+            <button mat-raised-button color="warn" type="button" (click)="exportToPDF()"
+              [disabled]="isLoading || !startDateControl.value" class="flex-1 sm:flex-none">
+              <mat-icon svgIcon="mat:picture_as_pdf" class="mr-1"></mat-icon>
+              Exporter PDF
+            </button>
+          </div>
+        </div>
 
         <!-- Vue tableau pour desktop -->
         <div class="hidden sm:block overflow-x-auto">

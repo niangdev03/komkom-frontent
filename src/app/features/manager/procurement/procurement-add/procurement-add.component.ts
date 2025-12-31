@@ -30,7 +30,7 @@ import { ProcurementService } from 'src/app/auth/services/procurement.service';
 import { ProductService } from 'src/app/auth/services/product.service';
 import { SupplierService } from 'src/app/auth/services/supplier.service';
 import { Company } from 'src/app/interfaces/Company';
-import { AddProcurement } from 'src/app/interfaces/Procurement';
+import { AddProcurement, Procurement } from 'src/app/interfaces/Procurement';
 import { Product } from 'src/app/interfaces/Product';
 import { Store } from 'src/app/interfaces/Store';
 import { Supplier } from 'src/app/interfaces/Supplier';
@@ -67,6 +67,10 @@ export class ProcurementAddComponent implements OnInit {
   procurementForm!: FormGroup;
   isSubmitting: boolean = false;
 
+  // Mode édition
+  isUpdateMode: boolean = false;
+  procurementToUpdate?: Procurement;
+
   // Contrôles de recherche
   supplierSearchCtrl = new FormControl('');
   productSearchCtrls: { [key: number]: FormControl } = {};
@@ -86,6 +90,12 @@ export class ProcurementAddComponent implements OnInit {
     if (history.state.store && history.state.company) {
       this.store = history.state.store;
       this.company = history.state.company;
+
+      // Vérifier si on est en mode édition
+      if (history.state.isUpdateMode && history.state.procurement) {
+        this.isUpdateMode = true;
+        this.procurementToUpdate = history.state.procurement;
+      }
     } else {
       this.goBack();
     }
@@ -96,6 +106,11 @@ export class ProcurementAddComponent implements OnInit {
     this.getSuppliers();
     this.getProducts();
     this.setupSupplierSearch();
+
+    // Charger les données en mode édition
+    if (this.isUpdateMode && this.procurementToUpdate) {
+      this.populateFormWithProcurementData();
+    }
   }
 
   setupSupplierSearch(): void {
@@ -330,6 +345,41 @@ export class ProcurementAddComponent implements OnInit {
     });
   }
 
+  populateFormWithProcurementData(): void {
+    if (!this.procurementToUpdate) return;
+
+    // Définir le fournisseur
+    this.procurementForm.patchValue({
+      supplier_id: this.procurementToUpdate.supplier.id,
+      status: this.procurementToUpdate.status
+    });
+
+    // Ajouter les line items
+    this.procurementToUpdate.line_items.forEach((lineItem, index) => {
+      const lineItemGroup = this.createLineItem();
+      this.lineItems.push(lineItemGroup);
+
+      // Setup subscriptions pour ce line item
+      this.setupLineItemSubscriptions(index);
+      this.setupProductSearch(index);
+
+      // Remplir les données du line item
+      lineItemGroup.patchValue({
+        product_id: lineItem.product.id,
+        quantity: parseInt(lineItem.quantity),
+        purchase_price: lineItem.purchase_price
+      });
+
+      // Ajouter les numéros de série si présents
+      if (lineItem.serial_numbers && lineItem.serial_numbers.length > 0) {
+        const serialNumbersArray = this.getSerialNumbers(index);
+        lineItem.serial_numbers.forEach((serialNumber) => {
+          serialNumbersArray.push(this.fb.control(serialNumber, [Validators.required]));
+        });
+      }
+    });
+  }
+
   save(): void {
     if (this.procurementForm.invalid) {
       // Mark all fields as touched to show validation errors
@@ -346,7 +396,7 @@ export class ProcurementAddComponent implements OnInit {
     const data: AddProcurement = {
       store_id: this.store.id,
       supplier_id: formValue.supplier_id,
-      status: 'pending',
+      status: formValue.status || 'pending',
       line_items: formValue.line_items.map(
         (item: {
           product_id: number;
@@ -362,7 +412,13 @@ export class ProcurementAddComponent implements OnInit {
         })
       )
     };
-    this.procurementService.add(data).subscribe({
+
+    // Déterminer si on fait un ajout ou une mise à jour
+    const request$ = this.isUpdateMode && this.procurementToUpdate
+      ? this.procurementService.update(this.procurementToUpdate.id, data)
+      : this.procurementService.add(data);
+
+    request$.subscribe({
       next: (response) => {
         this.notificationService.success(response.message);
         this.goBack();

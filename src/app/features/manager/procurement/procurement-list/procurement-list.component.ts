@@ -215,36 +215,6 @@ export class ProcurementListComponent implements OnInit {
         actions: 'swal2-actions-custom',
         confirmButton: 'swal2-confirm-custom',
         cancelButton: 'swal2-cancel-custom'
-      },
-      didOpen: () => {
-        setTimeout(() => {
-          // Force l'affichage du conteneur des actions
-          const actions = document.querySelector(
-            '.swal2-actions'
-          ) as HTMLElement;
-          if (actions) {
-            actions.style.cssText =
-              'display: flex !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; justify-content: center !important; gap: 10px !important;';
-          }
-
-          // Force l'affichage de chaque bouton individuellement
-          const confirmBtn = document.querySelector(
-            '.swal2-confirm'
-          ) as HTMLElement;
-          const cancelBtn = document.querySelector(
-            '.swal2-cancel'
-          ) as HTMLElement;
-
-          if (confirmBtn) {
-            confirmBtn.style.cssText =
-              'display: inline-flex !important; visibility: visible !important; opacity: 1 !important; background-color: #d33 !important; color: white !important; padding: 10px 20px !important; border-radius: 4px !important; border: none !important; cursor: pointer !important;';
-          }
-
-          if (cancelBtn) {
-            cancelBtn.style.cssText =
-              'display: inline-flex !important; visibility: visible !important; opacity: 1 !important; background-color: #6c757d !important; color: white !important; padding: 10px 20px !important; border-radius: 4px !important; border: none !important; cursor: pointer !important;';
-          }
-        }, 0);
       }
     }).then((result) => {
       if (result.isConfirmed) {

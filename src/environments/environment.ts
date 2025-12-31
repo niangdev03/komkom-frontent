@@ -6,5 +6,5 @@ export const environment = {
   total: 10,
   max_file_size: 2 * 1024 * 1024,
   pageSizeOptions: [5, 10, 15, 20, 25, 30]
-  // apiUrl: 'http://localhost:8000/api',
+  // apiUrl: 'http://localhost:8000/api'
 };

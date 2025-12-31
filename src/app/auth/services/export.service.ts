@@ -3,6 +3,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { ReportingResponse } from 'src/app/interfaces/ReportinData';
+import { Expense } from 'src/app/interfaces/Expense';
 
 @Injectable({
   providedIn: 'root'
@@ -272,5 +273,89 @@ export class ExportService {
     }
 
     return `${baseName}${filterSuffix}_${timestamp}.${extension}`;
+  }
+
+  /**
+   * Exporte les dépenses en PDF
+   */
+  exportExpensesToPDF(expenses: Expense[], filters: { start_date: string; end_date?: string }): void {
+    const doc = new jsPDF();
+
+    // Titre du document
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Rapport des Dépenses', 14, 20);
+
+    // Informations sur les filtres
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    let yPosition = 30;
+
+    if (filters.start_date && filters.end_date) {
+      doc.text(`Période: Du ${this.formatDate(filters.start_date)} au ${this.formatDate(filters.end_date)}`, 14, yPosition);
+    } else if (filters.start_date) {
+      doc.text(`Date de début: ${this.formatDate(filters.start_date)}`, 14, yPosition);
+    }
+
+    yPosition += 5;
+    doc.text(`Date de génération: ${new Date().toLocaleDateString('fr-FR')}`, 14, yPosition);
+
+    yPosition += 10;
+
+    // Calcul du total des dépenses
+    const totalAmount = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+
+    // Informations de synthèse
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Synthèse', 14, yPosition);
+    yPosition += 7;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Catégorie', 'Valeur']],
+      body: [
+        ['Nombre de dépenses', expenses.length.toString()],
+        ['Montant total', `${this.formatNumber(totalAmount)} FCFA`],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [220, 53, 69] },
+    });
+
+    yPosition = (doc as any).lastAutoTable.finalY + 10;
+
+    // Section: Détails des dépenses
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Détails des Dépenses', 14, yPosition);
+    yPosition += 7;
+
+    const tableData = expenses.map(expense => [
+      this.formatDate(expense.expense_date),
+      expense.title,
+      expense.description || '-',
+      this.formatNumber(expense.amount) + ' FCFA'
+    ]);
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Date', 'Titre', 'Description', 'Montant']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [220, 53, 69] },
+      styles: { fontSize: 9 },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 45 },
+        2: { cellWidth: 70 },
+        3: { cellWidth: 35, halign: 'right' }
+      }
+    });
+
+    // Sauvegarder le PDF
+    const fileName = this.generateFileName('depenses', filters, 'pdf');
+    doc.save(fileName);
   }
 }

@@ -346,7 +346,7 @@ export class InvoiceListComponent implements OnInit {
     this.meta.per_page = page.pageSize;
     this.meta.current_page = page.pageIndex + 1;
     this.invoiceService
-      .list(this.store.id, '', this.meta.current_page, this.meta.per_page)
+      .list(this.store.id, '', '', this.meta.current_page, this.meta.per_page)
       .subscribe({
         next: (response) => {
           this.assignData(response);

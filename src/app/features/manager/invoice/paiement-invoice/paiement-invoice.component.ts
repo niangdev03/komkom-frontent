@@ -62,31 +62,12 @@ export class PaiementInvoiceComponent implements OnInit {
         ]
       ],
       payment_type: ['cash', Validators.required],
-      phone_number: ['', [
-        Validators.pattern(/^[0-9]{9}$/)
-      ]],
       invoice_id: [this.data.invoice.id],
       user_id: [1] // This should be replaced with the actual logged-in user ID
     });
   }
 
   ngOnInit(): void {
-    // Update validators when payment type changes
-    this.paymentForm.get("payment_type")?.valueChanges.subscribe((value) => {
-      const phoneControl = this.paymentForm.get("phone_number")
-      if (value === "wave" || value === "OM") {
-        phoneControl?.setValidators([Validators.required, Validators.pattern(/^[0-9]{9}$/)])
-      } else {
-        phoneControl?.clearValidators()
-        phoneControl?.setValidators([Validators.pattern(/^[0-9]{9}$/)])
-      }
-      phoneControl?.updateValueAndValidity()
-    })
-  }
-
-  showPhoneField(): boolean {
-    const paymentType = this.paymentForm.get("payment_type")?.value
-    return paymentType === "wave" || paymentType === "OM"
   }
 
   submitPayment(): void {

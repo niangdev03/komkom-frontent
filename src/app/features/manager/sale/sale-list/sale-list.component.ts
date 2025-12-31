@@ -263,7 +263,14 @@ export class SaleListComponent implements OnInit {
       confirmButtonColor: '#10b981',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Oui, valider',
-      cancelButtonText: 'Annuler'
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -308,7 +315,14 @@ export class SaleListComponent implements OnInit {
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Oui, annuler',
-      cancelButtonText: 'Non'
+      cancelButtonText: 'Non',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({

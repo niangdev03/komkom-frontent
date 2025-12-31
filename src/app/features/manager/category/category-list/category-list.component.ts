@@ -250,7 +250,14 @@ export class CategoryListComponent implements OnInit {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Oui, supprimer',
-      cancelButtonText: 'Annuler'
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({

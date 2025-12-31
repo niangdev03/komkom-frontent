@@ -39,4 +39,17 @@ export class ExpenseService {
     return this.http.delete<ResponseMessage>(`${this.base_url}/expense/delete/${id}`);
   }
 
+  listForExport(
+    store_id: number,
+    filters: { start_date: string; end_date?: string }
+  ): Observable<ResponseExpense> {
+    let params = new HttpParams();
+
+    if (store_id) params = params.set('store_id', store_id);
+    if (filters.start_date) params = params.set('start_date', filters.start_date);
+    if (filters.end_date) params = params.set('end_date', filters.end_date);
+
+    return this.http.get<ResponseExpense>(`${this.base_url}/expense/list`, { params });
+  }
+
 }
