@@ -82,6 +82,8 @@ export class LoginComponent implements OnInit {
       const credentials = this.form.value;
       this.authService.login(credentials).subscribe({
         next: (response) => {
+          console.log(response);
+
           if (response.requires_otp) {
             this.authService.checkOtp(this.form.get('email')?.value).subscribe({
               next: (responseOtp) => {
@@ -110,9 +112,18 @@ export class LoginComponent implements OnInit {
             this.isSubmitting = false;
           } else if (error.error.isDisabled) {
             Swal.fire({
-              title: 'Votre compte a été suspendu !!!',
+              title: 'Compte suspendu',
+              text: 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.',
               icon: 'warning',
-              draggable: true
+              confirmButtonText: 'Compris',
+              confirmButtonColor: '#f59e0b',
+              allowOutsideClick: false,
+              customClass: {
+                container: 'swal2-container-custom',
+                popup: 'swal2-popup-custom',
+                confirmButton: 'swal2-confirm-custom'
+              },
+              heightAuto: false
             });
             this.isSubmitting = false;
           } else {

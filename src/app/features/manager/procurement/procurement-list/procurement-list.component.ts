@@ -200,59 +200,6 @@ export class ProcurementListComponent implements OnInit {
     }
   }
 
-  delete(item: Procurement): void {
-    Swal.fire({
-      title: 'Confirmation',
-      text: `Voulez-vous vraiment supprimer l'approvisionnement "${item.order_number}" ?`,
-      icon: 'warning',
-      showCancelButton: true,
-      buttonsStyling: false,
-      confirmButtonText: 'Oui, supprimer',
-      cancelButtonText: 'Annuler',
-      customClass: {
-        container: 'swal2-container-custom',
-        popup: 'swal2-popup-custom',
-        actions: 'swal2-actions-custom',
-        confirmButton: 'swal2-confirm-custom',
-        cancelButton: 'swal2-cancel-custom'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Suppression en cours...',
-          text: 'Veuillez patienter',
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading()
-        });
-
-        this.categoryService.delete(item.id).subscribe({
-          next: (response) => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Supprimé !',
-              text:
-                response.message ||
-                "L'approvisionnement a été supprimé avec succès.",
-              timer: 2000,
-              showConfirmButton: false
-            });
-            this.loadProcurements();
-          },
-          error: (error) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Erreur',
-              text:
-                error?.message ||
-                'Une erreur est survenue lors de la suppression.',
-              confirmButtonColor: '#d33'
-            });
-          }
-        });
-      }
-    });
-  }
-
   edit(data: Procurement) {
     this.router.navigate(['/index/manager/procurement/add'], {
       state: {

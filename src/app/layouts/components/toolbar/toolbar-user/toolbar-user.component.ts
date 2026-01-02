@@ -27,9 +27,11 @@ export class ToolbarUserComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private authService: AuthService,
   ) {
+    // S'abonner aux mises à jour en temps réel
     this.authService.getCurrentUser().subscribe({
       next:(response)=>{
-        this.userConnet = response
+        this.userConnet = response;
+        this.cd.markForCheck();
       }
     })
   }

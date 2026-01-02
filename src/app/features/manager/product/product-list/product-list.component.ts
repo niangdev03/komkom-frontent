@@ -22,11 +22,10 @@ import {
 } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInRight400ms } from '@vex/animations/fade-in-right.animation';
 import { fadeInUp400ms } from '@vex/animations/fade-in-up.animation';
 import { scaleIn400ms } from '@vex/animations/scale-in.animation';
@@ -309,9 +308,16 @@ export class ProductListComponent implements OnInit {
               icon: 'error',
               title: 'Erreur',
               text:
-                error?.message ||
+                error?.error.message ||
                 'Une erreur est survenue lors de la suppression.',
-              confirmButtonColor: '#d33'
+              confirmButtonColor: '#d33',
+              customClass: {
+                container: 'swal2-container-custom',
+                popup: 'swal2-popup-custom',
+                actions: 'swal2-actions-custom',
+                confirmButton: 'swal2-confirm-custom',
+                cancelButton: 'swal2-cancel-custom'
+              }
             });
           }
         });

@@ -30,6 +30,8 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private user$ = new BehaviorSubject<CurrentUserAuth | null>(null);
   private currentUser$ = new BehaviorSubject<User | null>(null);
+  private currentUserAuth$ = new BehaviorSubject<CurrentUserAuth | null>(null);
+  private companySubject$ = new BehaviorSubject<{ short_name: string; logo_url: string } | null>(null);
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -228,6 +230,34 @@ export class AuthService {
   getUserAuth(): Observable<CurrentUserAuth> {
     return this.http.get<CurrentUserAuth>(`${this.apiUrl}/authenticate`, {
       withCredentials: true
-    });
+    }).pipe(
+      tap((userAuth) => this.currentUserAuth$.next(userAuth))
+    );
+  }
+
+  getCurrentUserAuth(): Observable<CurrentUserAuth | null> {
+    return this.currentUserAuth$.asObservable();
+  }
+
+  refreshUserAuth(): Observable<CurrentUserAuth> {
+    return this.http.get<CurrentUserAuth>(`${this.apiUrl}/authenticate`, {
+      withCredentials: true
+    }).pipe(
+      tap((userAuth) => {
+        this.currentUserAuth$.next(userAuth);
+        this.currentUser$.next(userAuth.user);
+        // Mettre à jour les informations de la company
+        if (userAuth.company) {
+          this.companySubject$.next({
+            short_name: userAuth.company.short_name,
+            logo_url: userAuth.company.logo_url
+          });
+        }
+      })
+    );
+  }
+
+  getCurrentCompany(): Observable<{ short_name: string; logo_url: string } | null> {
+    return this.companySubject$.asObservable();
   }
 }

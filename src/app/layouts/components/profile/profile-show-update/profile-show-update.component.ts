@@ -50,10 +50,23 @@ export class ProfileShowUpdateComponent {
   ) {}
 
   ngOnInit() {
+    // Charger les données initiales
     this.authService.getUserAuth().subscribe({
       next: (response) => {
         this.userConnet = response;
         this.initializeForm(this.userConnet.user);
+      }
+    });
+
+    // S'abonner aux mises à jour en temps réel
+    this.authService.getCurrentUserAuth().subscribe({
+      next: (response) => {
+        if (response) {
+          this.userConnet = response;
+          if (this.form) {
+            this.initializeForm(response.user);
+          }
+        }
       }
     });
   }
@@ -145,11 +158,18 @@ export class ProfileShowUpdateComponent {
           this.isSubmitting = false;
           this.notif.success(response.message);
           this.showForm();
+          // Rafraîchir les données utilisateur dans tous les composants
+          this.authService.refreshUserAuth().subscribe({
+            next: () => {
+              this.form.enable();
+            }
+          });
         },
         error: (error) => {
           console.log(error);
           this.isSubmitting = false;
-          this.notif.success(error.message);
+          this.form.enable();
+          this.notif.error(error.message);
         }
       });
   }
@@ -166,7 +186,7 @@ export class ProfileShowUpdateComponent {
       gender: this.form.get('gender')?.value,
       address: this.form.get('address')?.value,
       role_id: this.userConnet?.user.role_id,
-      store_id: this.userConnet?.store.id
+      store_id: this.userConnet?.store?.id
     };
     // Ajouter tous les champs au FormData
     Object.entries(formFields).forEach(([key, value]) => {

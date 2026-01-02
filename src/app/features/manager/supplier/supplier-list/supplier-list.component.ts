@@ -313,9 +313,16 @@ export class SupplierListComponent implements OnInit {
               icon: 'error',
               title: 'Erreur',
               text:
-                error?.message ||
+                error?.error.message ||
                 'Une erreur est survenue lors de la suppression.',
-              confirmButtonColor: '#d33'
+              confirmButtonColor: '#d33',
+              customClass: {
+                container: 'swal2-container-custom',
+                popup: 'swal2-popup-custom',
+                actions: 'swal2-actions-custom',
+                confirmButton: 'swal2-confirm-custom',
+                cancelButton: 'swal2-cancel-custom'
+              }
             });
           }
         });

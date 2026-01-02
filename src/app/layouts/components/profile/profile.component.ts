@@ -47,9 +47,19 @@ export class ProfileComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
+    // Charger les données initiales
     this.authService.getUserAuth().subscribe({
       next: (response) => {
         this.userConnet = response;
+      }
+    });
+
+    // S'abonner aux mises à jour en temps réel
+    this.authService.getCurrentUserAuth().subscribe({
+      next: (response) => {
+        if (response) {
+          this.userConnet = response;
+        }
       }
     });
   }

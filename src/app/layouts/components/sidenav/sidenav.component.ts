@@ -82,6 +82,7 @@ export class SidenavComponent implements OnInit {
         this.imageUrlSubject$.next(imageUrl);
       });
 
+    // Charger les données initiales
     this.authService.getUserAuth().subscribe({
       next: (response) => {
         this.userConnet = response;
@@ -93,6 +94,31 @@ export class SidenavComponent implements OnInit {
 
         if (this.company?.logo_url) {
           this.imageUrlSubject$.next(this.company.logo_url);
+        }
+      }
+    });
+
+    // S'abonner aux mises à jour en temps réel de la company
+    this.authService.getCurrentCompany().subscribe({
+      next: (company) => {
+        if (company) {
+          if (company.short_name) {
+            this.titleSubject$.next(company.short_name);
+          }
+
+          if (company.logo_url) {
+            this.imageUrlSubject$.next(company.logo_url);
+          }
+        }
+      }
+    });
+
+    // S'abonner aux mises à jour de CurrentUserAuth
+    this.authService.getCurrentUserAuth().subscribe({
+      next: (response) => {
+        if (response) {
+          this.userConnet = response;
+          this.company = response.company;
         }
       }
     });

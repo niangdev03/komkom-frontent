@@ -56,6 +56,20 @@ export class CompanyShowUpdateComponent {
 
   ngOnInit(): void {
     this.loadData();
+
+    // S'abonner aux mises à jour en temps réel
+    this.authService.getCurrentUserAuth().subscribe({
+      next: (response) => {
+        if (response) {
+          this.currentUserAuth = response;
+          this.company = response.company;
+          if (this.companyForm) {
+            this.initializeForm(this.company);
+          }
+          this.logoPreviewUrl = this.company.logo_url || null;
+        }
+      }
+    });
   }
 
   loadData() {
@@ -148,21 +162,16 @@ export class CompanyShowUpdateComponent {
     this.companyService.updateOnlyCompany(this.company.id, formData).subscribe({
       next: (response) => {
         this.notif.success(response.message);
-        this.loadData();
         this.isSubmitting = false;
         this.isUpdateMode = false;
+        // Rafraîchir les données dans tous les composants
+        this.authService.refreshUserAuth().subscribe();
       },
       error: (error) => {
-        this.notif.success(error.error);
+        this.notif.error(error.error);
         this.isSubmitting = false;
       }
     });
-
-    // Simulation d'appel API
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.isUpdateMode = false;
-    }, 1000);
   }
 
   get f() {

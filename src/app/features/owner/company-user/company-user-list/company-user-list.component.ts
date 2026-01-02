@@ -62,6 +62,7 @@ import {
 import { scaleIn400ms } from '@vex/animations/scale-in.animation';
 import { fadeInRight400ms } from '@vex/animations/fade-in-right.animation';
 import { MatOptionModule } from '@angular/material/core';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'vex-company-user-list',
@@ -349,33 +350,122 @@ export class CompanyUserListComponent implements OnInit {
   }
 
   public updateStatus(element: User, event: MatSlideToggleChange) {
-    // const dialogRef = this.dialog.open(DeleteDialogConfirmComponent, {
-    //   disableClose: true,
-    //   data: {
-    //     title: 'Confirmation',
-    //     message: 'Voulez-vous vraiment changer le statut de cet utilisateur ?'
-    //   }
-    // });
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result == true) {
-    //     this.userService.toggleStatus(element.id).subscribe({
-    //       next: (response) => {
-    //         // Conversion en boolean
-    //         element.status = !element.status;
-    //         event.source.checked = element.status;
-    //         this.showMessage(response.message, 'success-snackbar');
-    //         this.refreshData('');
-    //       },
-    //       error: (error) => {
-    //         event.source.checked = element.status;
-    //         console.error('Erreur lors du changement de statut:', error);
-    //         this.showMessage('Erreur lors du changement de statut', 'error-snackbar');
-    //       }
-    //     });
-    //   } else{
-    //     event.source.checked = Boolean(element.status);
-    //   }
-    // });
+    const previousStatus = element.status;
+    const newStatus = event.checked;
+
+    Swal.fire({
+      title: 'Confirmation',
+      text: `Voulez-vous vraiment ${
+        newStatus ? 'activer' : 'désactiver'
+      } cet utilisateur "${element.full_name}" ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: newStatus ? 'Oui, activer' : 'Oui, désactiver',
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Mise à jour en cours...',
+          text: 'Veuillez patienter',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        this.userService.disableUser(element.id).subscribe({
+          next: (response) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Mis à jour !',
+              text:
+                response.message ||
+                `L'utilisateur a été ${
+                  newStatus ? 'activé' : 'désactivé'
+                } avec succès.`,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.refreshData('');
+          },
+          error: (error) => {
+            // Rétablir l'état précédent en cas d'erreur
+            element.status = previousStatus;
+            Swal.fire({
+              icon: 'error',
+              title: 'Erreur',
+              text:
+                error?.message ||
+                'Une erreur est survenue lors de la mise à jour.',
+              confirmButtonColor: '#d33'
+            });
+          }
+        });
+      } else {
+        // Rétablir l'état précédent si l'utilisateur annule
+        event.source.checked = previousStatus;
+      }
+    });
+  }
+
+  delete(element: User) {
+    Swal.fire({
+      title: 'Confirmation',
+      text: `Voulez-vous vraiment supprimer cet utilisateur "${element.full_name}" ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom',
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Suppression en cours...',
+          text: 'Veuillez patienter',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        this.userService.deleteUser(element.id).subscribe({
+          next: (response) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Supprimé !',
+              text:
+                response.message || "L'utilisateur a été supprimé avec succès.",
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.refreshData('');
+          },
+          error: (error) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Erreur',
+              text:
+                error?.error.message ||
+                'Une erreur est survenue lors de la suppression.',
+              confirmButtonColor: '#d33'
+            });
+          }
+        });
+      }
+    });
   }
 
   pageEvent(page: PageEvent) {
