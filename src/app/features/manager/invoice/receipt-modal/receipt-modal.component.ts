@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { Invoice } from 'src/app/interfaces/Invoice';
 import { IntegerSeparatorPipe } from 'src/app/pipes/integer-separator.pipe';
 import { FrenchDatePipe } from 'src/app/pipes/french-date.pipe';
-import { AuthService } from 'src/app/auth/services/auth.service';
 import { Store } from 'src/app/interfaces/Store';
 
 @Component({
@@ -37,6 +36,7 @@ export class ReceiptModalComponent {
   ) {
     this.invoice = data.invoice;
     this.store = data.store;
+    console.log(data);
   }
 
   close(): void {
@@ -45,5 +45,18 @@ export class ReceiptModalComponent {
 
   print(): void {
     window.print();
+  }
+
+  getPaymentTypeLabel(type: string): string {
+    switch (type) {
+      case 'cash':
+        return 'Espèces';
+      case 'wave':
+        return 'Wave';
+      case 'OM':
+        return 'Orange Money';
+      default:
+        return type;
+    }
   }
 }

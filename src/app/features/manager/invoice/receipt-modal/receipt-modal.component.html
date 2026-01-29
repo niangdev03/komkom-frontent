@@ -37,17 +37,27 @@
 
       <!-- Informations client -->
       <div class="receipt-section">
-        <h3 class="section-title">CLIENT</h3>
+        <h4 class="section-title">CLIENT</h4>
         <p>
           <span class="client-name">{{ invoice.customer_name || 'Client' }}</span>
         </p>
+      </div>
+      <div class="divider"></div>
+
+      <!-- Paiements reçus -->
+      <div class="receipt-section" *ngIf="invoice.payment_receipts.length">
+        <h4 class="section-title">PAIEMENTS REÇUS</h4>
+        <div *ngFor="let payment of invoice.payment_receipts" class="payment-row">
+          <span class="payment-type">{{ getPaymentTypeLabel(payment.payment_type) }}</span>
+          <span class="payment-amount">{{ payment.amount | integerSeparator }} FCFA</span>
+        </div>
       </div>
 
       <div class="divider"></div>
 
       <!-- Montants -->
       <div class="receipt-section">
-        <h3 class="section-title">DÉTAILS DU PAIEMENT</h3>
+        <h4 class="section-title">MONTANT DES PAIEMENTS</h4>
 
         <div class="amount-row">
           <span class="amount-label">Montant Total:</span>

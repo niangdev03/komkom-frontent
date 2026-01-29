@@ -82,8 +82,6 @@ export class LoginComponent implements OnInit {
       const credentials = this.form.value;
       this.authService.login(credentials).subscribe({
         next: (response) => {
-          console.log(response);
-
           if (response.requires_otp) {
             this.authService.checkOtp(this.form.get('email')?.value).subscribe({
               next: (responseOtp) => {
@@ -113,7 +111,7 @@ export class LoginComponent implements OnInit {
           } else if (error.error.isDisabled) {
             Swal.fire({
               title: 'Compte suspendu',
-              text: 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.',
+              text: "Votre compte a été suspendu. Veuillez contacter l'administrateur.",
               icon: 'warning',
               confirmButtonText: 'Compris',
               confirmButtonColor: '#f59e0b',

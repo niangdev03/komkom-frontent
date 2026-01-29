@@ -53,7 +53,7 @@ export class SaleReceiptModalComponent {
         return 'Payée';
       case 'partial':
         return 'Partielle';
-      case 'unpaid':
+      case 'no_paid':
         return 'Non Payée';
       default:
         return 'Inconnu';

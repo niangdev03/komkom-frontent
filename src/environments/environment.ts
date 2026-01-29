@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://backendkomkom.niangdev.com/api', // Prod
+  apiUrl: 'https://backendkomkom.niangdev.com/api',
   current_page: 1,
   per_page: 10,
   total: 10,

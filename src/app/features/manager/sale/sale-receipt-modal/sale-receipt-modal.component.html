@@ -37,7 +37,7 @@
 
       <!-- Informations client -->
       <div class="receipt-section">
-        <h3 class="section-title">CLIENT</h3>
+        <h4 class="section-title">CLIENT</h4>
         <p>
           <span class="client-name">{{ saleDetails.customer?.name || 'Client Anonyme' }} </span>
           <span class="client-info" *ngIf="saleDetails.customer?.phone"> - {{ saleDetails.customer?.phone }}</span>
@@ -48,7 +48,8 @@
 
       <!-- Produits -->
       <div class="receipt-section">
-        <h3 class="section-title">PRODUITS</h3>
+        <h4 class="section-title">PRODUITS</h4>
+        <div style="border-top: 1px dashed #999;"></div>
 
         <div *ngFor="let item of saleDetails.sale_line_items" class="product-row">
           <div class="product-line">
@@ -88,7 +89,7 @@
           <span class="status-badge" [ngClass]="{
             'status-paid': saleDetails.status_payment === 'paid',
             'status-partial': saleDetails.status_payment === 'partial',
-            'status-unpaid': saleDetails.status_payment === 'unpaid'
+            'status-unpaid': saleDetails.status_payment === 'no_paid'
           }">
             {{ getPaymentStatusLabel(saleDetails.status_payment) }}
           </span>

@@ -1,24 +1,37 @@
-import { CommonModule, NgIf } from "@angular/common";
-import { Component, Inject } from "@angular/core";
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { MatDividerModule } from "@angular/material/divider";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatMenuModule } from "@angular/material/menu";
-import { MatProgressBarModule } from "@angular/material/progress-bar";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSnackBarModule, MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
-import { Router } from "@angular/router";
-import { fadeInRight400ms } from "@vex/animations/fade-in-right.animation";
-import { fadeInUp400ms } from "@vex/animations/fade-in-up.animation";
-import { scaleIn400ms } from "@vex/animations/scale-in.animation";
-import { stagger80ms } from "@vex/animations/stagger.animation";
-import { CompanyService } from "src/app/auth/services/company.service";
-import { NotificationService } from "src/app/auth/services/Notification.service";
+import { CommonModule, NgIf } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormGroup,
+  FormBuilder,
+  Validators
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import {
+  MatSnackBarModule,
+  MatSnackBar,
+  MatSnackBarConfig
+} from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { fadeInRight400ms } from '@vex/animations/fade-in-right.animation';
+import { fadeInUp400ms } from '@vex/animations/fade-in-up.animation';
+import { scaleIn400ms } from '@vex/animations/scale-in.animation';
+import { stagger80ms } from '@vex/animations/stagger.animation';
+import { CompanyService } from 'src/app/auth/services/company.service';
+import { NotificationService } from 'src/app/auth/services/Notification.service';
 
 @Component({
   selector: 'vex-company-store-add',
@@ -40,7 +53,7 @@ import { NotificationService } from "src/app/auth/services/Notification.service"
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatDividerModule
-  ],
+  ]
 })
 export class CompanyStoreAddComponent {
   form!: FormGroup;
@@ -48,7 +61,7 @@ export class CompanyStoreAddComponent {
   isSubmitting = false;
   company: any;
   storeUpdate: any;
-  title:string='';
+  title: string = '';
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
@@ -64,22 +77,30 @@ export class CompanyStoreAddComponent {
       this.storeUpdate = this.data.store;
       this.title = this.data.title;
       this.isUpdateMode = this.data.isUpdateMode;
-      console.log(this.company);
-
     }
   }
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: [this.isUpdateMode ? this.storeUpdate.name : '', [Validators.required, Validators.maxLength(255)]],
-      address: [this.isUpdateMode ? this.storeUpdate.address : '', [Validators.required, Validators.maxLength(255)]],
+      name: [
+        this.isUpdateMode ? this.storeUpdate.name : '',
+        [Validators.required, Validators.maxLength(255)]
+      ],
+      address: [
+        this.isUpdateMode ? this.storeUpdate.address : '',
+        [Validators.required, Validators.maxLength(255)]
+      ],
       email: [
         this.isUpdateMode ? this.storeUpdate.email : '',
         [Validators.required, Validators.email, Validators.maxLength(255)]
       ],
       phone_one: [
         this.isUpdateMode ? this.storeUpdate.phone_one : '',
-        [Validators.required, Validators.maxLength(20), Validators.pattern('^[0-9]*$')]
+        [
+          Validators.required,
+          Validators.maxLength(20),
+          Validators.pattern('^[0-9]*$')
+        ]
       ],
       phone_two: [
         this.isUpdateMode ? this.storeUpdate.phone_two : '',
@@ -93,31 +114,33 @@ export class CompanyStoreAddComponent {
     });
   }
 
-    save(){
+  save() {
     this.isSubmitting = true;
     if (this.isUpdateMode && this.form.valid) {
-      this.companyService.updateStore(this.storeUpdate.id, this.form.value).subscribe({
-        next:(response)=>{
-          this.notify.success(response.message);
-          this.dialogRef.close(true);
-          this.isSubmitting = false;
-        },
-        error:(error)=>{
-          this.notify.error(error);
-        }
-      })
+      this.companyService
+        .updateStore(this.storeUpdate.id, this.form.value)
+        .subscribe({
+          next: (response) => {
+            this.notify.success(response.message);
+            this.dialogRef.close(true);
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.notify.error(error);
+          }
+        });
     }
     if (!this.isUpdateMode && this.form.valid) {
       this.companyService.addStore(this.form.value).subscribe({
-        next:(response)=>{
+        next: (response) => {
           this.notify.success(response.message);
           this.dialogRef.close(true);
           this.isSubmitting = false;
         },
-        error:(error)=>{
+        error: (error) => {
           this.notify.error(error);
         }
-      })
+      });
     }
   }
 
